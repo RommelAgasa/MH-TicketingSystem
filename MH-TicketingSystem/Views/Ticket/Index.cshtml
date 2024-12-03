@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<MH_TicketingSystem.Models.TicketPriorityLevelViewModel>
 @{
     ViewData["Title"] = "Tickets";
+    var ticketType = Context.Request.Query["ticketType"];
 }
 
 <div class="page-inner">
@@ -27,34 +28,27 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-head-row">
+                       
                         <div class="card-title">Support Tickets</div>
                         <div class="card-tools">
-                            <ul class="nav nav-pills nav-secondary nav-pills-no-bd nav-sm"
-                                id="pills-tab"
-                                role="tablist">
+                            <ul class="nav nav-pills nav-secondary nav-pills-no-bd nav-sm">
                                 <li class="nav-item">
-                                    <a class="nav-link"
-                                       id="pills-today"
-                                       data-bs-toggle="pill"
-                                       href="#pills-today"
-                                       role="tab"
-                                       aria-selected="true">Today</a>
+                                    <a asp-controller="Ticket" asp-action="Index"
+                                       asp-route-ticketType="all"
+                                       class="nav-link @((ticketType == "all" || string.IsNullOrEmpty(ticketType)) ? "active" : "")"
+                                       aria-selected="true">All</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link active"
-                                       id="pills-week"
-                                       data-bs-toggle="pill"
-                                       href="#pills-week"
-                                       role="tab"
-                                       aria-selected="false">Week</a>
+                                    <a asp-controller="Ticket" asp-action="Index"
+                                       asp-route-ticketType="open"
+                                       class="nav-link @((ticketType == "open") ? "active" : "")"
+                                       aria-selected="false">Open</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link"
-                                       id="pills-month"
-                                       data-bs-toggle="pill"
-                                       href="#pills-month"
-                                       role="tab"
-                                       aria-selected="false">Month</a>
+                                    <a asp-controller="Ticket" asp-action="Index"
+                                       asp-route-ticketType="closed"
+                                       class="nav-link @((ticketType == "closed") ? "active" : "")"
+                                       aria-selected="false">Closed</a>
                                 </li>
                             </ul>
                         </div>
@@ -125,7 +119,7 @@
                         <div class="separator-dashed"></div>
                     }
 
-                    <nav aria-label="Ticket page navigation">
+                    <nav aria-label="Ticket page navigation" style="display: @(Model.Count() <= 0? "none" : "block");">
                         <ul class="pagination">
                             <li class="page-item">
                                 <a class="page-link" href="#" aria-label="Previous">

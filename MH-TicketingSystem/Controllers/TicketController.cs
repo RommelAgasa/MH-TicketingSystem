@@ -20,24 +20,12 @@ namespace MH_TicketingSystem.Controllers
 
         public IActionResult Index(string ticketType = "all", string messageAlert = "", int errorCount = 0)
         {
-            var tickets = (from t in _context.Tickets
-                            join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
-                            select new TicketPriorityLevelViewModel
-                            {
-                                TicketUserId = t.UserId,
-                                TicketId = t.Id,
-                                TicketNumber = t.TicketNumber,
-                                Subject = t.Subject,
-                                Description = t.Description,
-                                FilePath = t.FilePath ?? null,
-                                FileName = t.FileName ?? null,
-                                DateTicket = t.DateTicket,
-                                TicketStatus = t.TicketStatus,
-                                SLADeadline = (DateTime)t.SLADeadline,
-                                PriorityLevelId = pl.Id,
-                                PriorityLevelName = pl.PriorityLevelName,
-                                PriorityLevelColor = pl.PriorityLevelColor
-                            }).ToList();
+            List<TicketPriorityLevelViewModel> tickets = ticketType switch
+            {
+                "open" => GetAllTickets().Where(t => t.TicketStatus == (int)TicketStatus.Open).ToList(),
+                "closed" => GetAllTickets().Where(t => t.TicketStatus == (int)TicketStatus.Closed).ToList(),
+                _ => GetAllTickets()
+            };
 
             // This is use in opening and closing the ticket alert message
             if (!string.IsNullOrEmpty(messageAlert) && errorCount == 0)
@@ -50,6 +38,30 @@ namespace MH_TicketingSystem.Controllers
             }
 
             return View(tickets);
+        }
+
+
+        private List<TicketPriorityLevelViewModel> GetAllTickets()
+        {
+            var tickets = (from t in _context.Tickets
+                           join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
+                           select new TicketPriorityLevelViewModel
+                           {
+                               TicketUserId = t.UserId,
+                               TicketId = t.Id,
+                               TicketNumber = t.TicketNumber,
+                               Subject = t.Subject,
+                               Description = t.Description,
+                               FilePath = t.FilePath ?? null,
+                               FileName = t.FileName ?? null,
+                               DateTicket = t.DateTicket,
+                               TicketStatus = t.TicketStatus,
+                               SLADeadline = (DateTime)t.SLADeadline,
+                               PriorityLevelId = pl.Id,
+                               PriorityLevelName = pl.PriorityLevelName,
+                               PriorityLevelColor = pl.PriorityLevelColor
+                           }).ToList();
+            return tickets;
         }
 
         public async Task<IActionResult> Details(int id)
