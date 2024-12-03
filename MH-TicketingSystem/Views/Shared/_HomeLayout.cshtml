@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>@ViewData["Title"] - MH Ticketing System</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+          name="viewport" />
+    <link rel="icon"
+          href="~/img/21_Center_MetroHealthLogo_White.png"
+          type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <script src="@Url.Content("~/js/plugin/webfont/webfont.min.js")"></script>
+
+    <script>
+        WebFont.load({
+            google: { families: ["Public Sans:300,400,500,600,700"] },
+            custom: {
+                families: [
+                    "Font Awesome 5 Solid",
+                    "Font Awesome 5 Regular",
+                    "Font Awesome 5 Brands",
+                    "simple-line-icons",
+                ],
+                urls: ["@Url.Content("~/css/fonts.min.css")"],
+            },
+            active: function () {
+                sessionStorage.fonts = false; // Force reload fonts on every view load
+            }
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/plugins.min.css" />
+    <link rel="stylesheet" href="~/css/kaiadmin.min.css" asp-append-version="true" />
+	
+
+</head>
+<body>
+    <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="~/img/03_Left_MetroHealthLogo_White.png"
+                     alt="navbar brand"
+                     class="navbar-brand"
+                     height="55px" width="170px" />
+            </a>
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarText"
+                    aria-controls="navbarText"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link text-white" asp-controller="Home" asp-action="Index">My Area <span class="sr-only">(current)</span></a>
+                    </li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                            <a href="#" class="nav-link text-white border-0" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    @RenderBody()
+
+    <!--   Core JS Files   -->
+    <script src="~/js/core/jquery-3.7.1.min.js"></script>
+    <script src="~/js/core/popper.min.js"></script>
+    <script src="~/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="~/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Chart JS -->
+    <script src="~/js/plugin/chart.js/chart.min.js"></script>
+
+    <!-- jQuery Sparkline -->
+    <script src="~/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+    <!-- Chart Circle -->
+    <script src="~/js/plugin/chart-circle/circles.min.js"></script>
+
+    <!-- Datatables -->
+    <script src="~/js/plugin/datatables/datatables.min.js"></script>
+
+    <!-- Bootstrap Notify -->
+    <script src="~/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+    <!-- jQuery Vector Maps -->
+    <script src="~/js/plugin/jsvectormap/jsvectormap.min.js"></script>
+    <script src="~/js/plugin/jsvectormap/world.js"></script>
+
+    <!-- Kaiadmin JS -->
+    <script src="~/js/kaiadmin.min.js" asp-append-version="true"></script>
+
+    <script src="~/js/sweet_alert.js"></script>
+
+    <!-- DataTables -->
+    <script>
+
+        $(document).ready(function () {
+            $("#datatable").DataTable({});
+        });
+
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+

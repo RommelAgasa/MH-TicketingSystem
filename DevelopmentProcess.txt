@@ -1,0 +1,3 @@
+1. Create a User and Roles if really needed
+2. Adding Ticket
+3. Messaging Functionality

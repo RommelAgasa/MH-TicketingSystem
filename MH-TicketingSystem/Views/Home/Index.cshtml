@@ -1,0 +1,195 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@inject UserManager<IdentityUser> UserManager
+@model IEnumerable<MH_TicketingSystem.Models.TicketPriorityLevelViewModel>
+
+@{
+    Layout = "_HomeLayout";
+    ViewData["Title"] = "Metro Health Ticketing System";
+}
+
+<div class="container">
+    <div class="row text-center p-4 justify-content-center">
+        <div class="d-flex justify-content-center align-items-center" style="height: 60px;">
+            <form class="navbar-left navbar-form nav-search me-2 w-75" action="">
+                <div class="input-group shadow">
+                    <input type="text" placeholder="Search Ticket ..." class="form-control" />
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-search">
+                            <i class="fa fa-search search-icon"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <a type="button" asp-controller="Home" asp-action="Create" class="btn btn-black ms-2">Add Ticket</a>
+            @* @if (User.IsInRole("Employee")) // Display only in Employee
+            {
+                <a type="button" asp-controller="Home" asp-action="Create" class="btn btn-black ms-2">Add Ticket</a>
+            } *@
+        </div>
+        <hr class="mt-3 mb-3" />
+    </div>
+
+    <div class="row row-demo-grid">
+        <div class="col-12 col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-head-row">
+                        @{
+                            var ticketType = Context.Request.Query["ticketType"];
+                            string ticketView = "";
+                            if (ticketType == "closed") ticketView = "My Closed Tickets";
+                            else if (ticketType == "open") ticketView = "My Open Tickets";
+                            else ticketView = "My Tickets";
+                        }
+                        <div class="card-title">@ticketView</div>
+                        @* <div class="card-tools">
+                            <ul class="nav nav-pills nav-secondary nav-pills-no-bd nav-sm"
+                                id="pills-tab"
+                                role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                        id="pills-today"
+                                        data-bs-toggle="pill"
+                                        href="#pills-today"
+                                        role="tab"
+                                        aria-selected="true">Urgent</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active"
+                                        id="pills-week"
+                                        data-bs-toggle="pill"
+                                        href="#pills-week"
+                                        role="tab"
+                                        aria-selected="false">High</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                        id="pills-month"
+                                        data-bs-toggle="pill"
+                                        href="#pills-month"
+                                        role="tab"
+                                        aria-selected="false">Medium</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                        id="pills-low"
+                                        data-bs-toggle="pill"
+                                        href="#pills-low"
+                                        role="tab"
+                                        aria-selected="false">Low</a>
+                                </li>
+                            </ul>
+                        </div> *@
+                    </div>
+                </div>
+                <div class="card-body">
+                    @foreach(var ticket in Model)
+                    {
+                        string ticketStatusString = Enum.GetName(typeof(TicketStatus), ticket.TicketStatus); // TicketStatus is required in submitting ticket, so ignore the warning
+                        string truncatedDescription = ticket.Description.Length > 50
+                        ? ticket.Description.Substring(0, 50) + "..."
+                        : ticket.Description;
+                        string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                        <div class="d-flex">
+                            <div class="flex-1 ms-3 pt-1">
+                                <h6 class="text-uppercase fw-bold mb-1">
+                                    <a asp-asp-controller="Home" 
+                                        asp-action="Details" 
+                                        asp-route-id="@ticket.TicketId"
+                                        style=" color: #007bff; text-decoration: none; font-weight: bold;">
+                                        @ticket.Subject.ToUpper()
+                                    </a>
+                                    <span class="text-@ticket.PriorityLevelColor ps-3">@ticketStatusString</span>
+                                </h6>
+                                <span class="text-muted">
+                                    @truncatedDescription
+                                </span>
+                                <br />
+                                <small class="text-muted mr-2">
+                                    <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fa fa-comments"></i> 1 replies
+                                </small>
+                                <small class="text-muted mr-2">
+                                    <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
+                                </small>
+                            </div>
+                            <div class="float-end pt-1">
+                                <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-sm" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false"
+                                            style="background-color: transparent; border: none;">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>
+                                            <form asp-controller="Home" asp-action="CloseTicket"
+                                                  asp-route-id="@ticket.TicketId" method="post"
+                                                  class="d-inline">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    Close
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form asp-controller="Home" asp-action="ReOpenTicket"
+                                                  asp-route-id="@ticket.TicketId" method="post"
+                                                  class="d-inline">
+                                                <button type="submit" class="dropdown-item text-primary">
+                                                    Re-Open
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="separator-dashed"></div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4 mt-1">
+            <!-- Adjusted to be responsive -->
+            <div class="card">
+                <div class="card-header">
+                    <strong>Views</strong>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a asp-controller="Home" asp-action="Index" 
+                        asp-route-ticketType="all">@(User.IsInRole("Admin") ? "All Tickets" : "My Tickets")</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a asp-controller="Home" asp-action="Index" 
+                        asp-route-ticketType="open">@(User.IsInRole("Admin") ? "Open Tickets" : "My Open Tickets")</a>
+                     </li>
+                    <li class="list-group-item">
+                        <a asp-controller="Home" asp-action="Index" 
+                        asp-route-ticketType="closed">@(User.IsInRole("Admin") ? "Closed Tickets" : "My Closed Tickets")</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--   Core JS Files   -->
+<script src="~/js/core/jquery-3.7.1.min.js"></script>
+<script src="~/vendor/toastr/js/toastr.min.js"></script>
+<script>
+    $(function () {
+        // Check if TempData["Success"] exists
+        @if (TempData["Success"] != null)
+        {
+            <text>
+               toastr.success('@TempData["Success"]');
+            </text>
+        }
+    })
+</script>

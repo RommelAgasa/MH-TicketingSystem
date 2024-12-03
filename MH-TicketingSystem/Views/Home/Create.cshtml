@@ -1,0 +1,67 @@
+﻿@model MH_TicketingSystem.Models.Tickets
+
+@{
+	ViewData["Title"] = "Create New Ticket";
+	Layout = "_HomeLayout";
+}
+
+<div class="container">
+	<div class="row">
+        <div class="row justify-content-md-center align-items-center mt-3">
+            <div class="col-md-10">
+                <div class="card p-2">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3>New Ticket: @ViewBag.TicketNumber</h3>
+                    </div>
+                    <div class="card-body">
+                        <form enctype="multipart/form-data" asp-controller="Home" asp-action="Create">
+                            <input asp-for="TicketNumber" type="hidden" value="@ViewBag.TicketNumber"/>
+                            <div class="form-group">
+                                <label asp-for="Subject">Subject</label>
+                                <input type="text" class="form-control" asp-for="Subject" placeholder="Subject">
+                                <span asp-validation-for="Subject" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Description">Description</label>
+                                <textarea class="form-control" asp-for="Description" rows="4"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="formFile" class="form-label">Send File</label>
+                                <input class="form-control" type="file" name="file" id="formFile">
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PriorityLevelId">Priority Level</label>
+                                <select class="form-control input-square" asp-for="PriorityLevelId" asp-items="@ViewBag.PriorityLevel">
+                                </select>
+                                <span asp-validation-for="PriorityLevelId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SLADeadline" class="form-label">Service Level Agreements Deadline</label>
+                                @Html.EditorFor(m => m.SLADeadline, new { htmlAttributes = new { @class = "form-control", type = "date" } })
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>
+
+<script src="~/js/core/jquery-3.7.1.min.js"></script>
+<script src="~/vendor/toastr/js/toastr.min.js"></script>
+<script>
+    var errorMessage = '@TempData["Error"]';
+</script>
+<script>
+    $(document).ready(function () {
+        $('#SLADeadline').val(new Date().toISOString().split('T')[0]);
+
+        if (errorMessage) {
+            toastr.success(errorMessage);
+        }
+    });
+</script>

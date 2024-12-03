@@ -1,0 +1,90 @@
+﻿@model MH_TicketingSystem.Models.UserDepartmentViewModel
+
+@{
+    ViewData["Title"] = "Edit Account Setting";
+}
+
+<div class="page-inner">
+    <div class="page-header">
+        <ul class="breadcrumbs">
+            <li class="nav-home">
+                <a asp-controller="Dashboard" asp-action="Index">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="#">Account Setting</a>
+            </li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Account Setting</div>
+                    <div class="card-category">
+                        @* Turn standard bootstrap alerts into "growl" like
+                        notifications from
+                        <a class="link"
+                        href="http://bootstrap-notify.remabledesigns.com/">Bootstrap Notify</a> *@
+                    </div>
+                </div>
+                <form asp-action="Edit" method="post">
+                    <div class="card-body">
+                        <div class="form">
+                            <input asp-for="UserId" type="hidden" />
+                            <div class="form-group form-show-notify row">
+                                <div class="col-lg-3 col-md-3 col-sm-4 text-end">
+                                    <label asp-for="UserName">Username :</label>
+                                </div>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <input type="text"
+                                            class="form-control"
+                                            asp-for="UserName"/>
+                                </div>
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group form-show-notify row">
+                                <div class="col-lg-3 col-md-3 col-sm-4 text-end">
+                                    <label asp-for="Password">Password :</label>
+                                </div>
+                                <div class="col-lg-4 col-md-9 col-sm-8 d-flex align-items-center">
+                                    <input type="password"
+                                            class="form-control me-2"
+                                            asp-for="Password" />
+                                    <p class="mb-0">User cannot view password, it can only be changed.</p>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            <div class="form-group form-show-notify row">
+                                <div class="col-lg-3 col-md-3 col-sm-4 text-end">
+                                    <label>Department :</label>
+                                </div>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <select class="form-select input-fixed"
+                                            asp-for="DepartmentId" asp-items="@(new SelectList(ViewBag.Departments, "Value", "Text"))">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="form">
+                            <div class="form-group from-show-notify row">
+                                <div class="col-lg-3 col-md-3 col-sm-12"></div>
+                                <div class="col-lg-4 col-md-9 col-sm-12">
+                                    <button type="submit" id="save_account" class="btn w-50 btn-primary">
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

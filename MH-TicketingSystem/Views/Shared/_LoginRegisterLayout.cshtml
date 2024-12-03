@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>@ViewData["Title"] - MH Ticketing System</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+          name="viewport" />
+    <link rel="icon"
+          href="~/img/21_Center_MetroHealthLogo_White.png"
+          type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <script src="@Url.Content("~/js/plugin/webfont/webfont.min.js")"></script>
+
+    <script>
+        WebFont.load({
+            google: { families: ["Public Sans:300,400,500,600,700"] },
+            custom: {
+                families: [
+                    "Font Awesome 5 Solid",
+                    "Font Awesome 5 Regular",
+                    "Font Awesome 5 Brands",
+                    "simple-line-icons",
+                ],
+                urls: ["@Url.Content("~/css/fonts.min.css")"],
+            },
+            active: function () {
+                sessionStorage.fonts = false; // Force reload fonts on every view load
+            }
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/plugins.min.css" />
+    <link rel="stylesheet" href="~/css/kaiadmin.min.css" asp-append-version="true" />
+
+</head>
+<body>
+
+    <div class="container">
+        @RenderBody()
+    </div>
+
+    <!--   Core JS Files   -->
+    <script src="~/js/core/jquery-3.7.1.min.js"></script>
+    <script src="~/js/core/popper.min.js"></script>
+    <script src="~/js/core/bootstrap.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+

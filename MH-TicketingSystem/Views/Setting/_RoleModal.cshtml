@@ -1,0 +1,122 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model IdentityRole
+
+<!--Add New Role Form -->
+<div class="modal fade"
+     id="modal-form-add-role"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="modal-form"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <form role="form text-left" method="post" action="@Url.Action("Create", "AppRoles")">
+                    <div class="card mb-0">
+                        <div class="card-header text-left">
+                            <h3 class="fw-bolder text-info">New Role</h3>
+                        </div>
+                        <div class="card-body">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <label asp-for="Name">User Role</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control input-square" asp-for="Name" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="text-end pb-2 px-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit New Role Form -->
+<div class="modal fade"
+     id="modal-form-edit-role"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="modal-form"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <div class="card mb-0">
+                    <div class="card-header text-left">
+                        <h3 class="fw-bolder text-info">Edit Role</h3>
+                    </div>
+                    <form role="form text-left" method="post" action="@Url.Action("Edit", "AppRoles")">
+                        <div class="card-body">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <label for="roleNameEdit">User Role Name</label>
+                            <div class="input-group mb-3">
+                                <input asp-for="Name" type="text"
+                                        class="form-control input-square"
+                                        id="roleNameEdit">
+                            </div>
+                            <input type="hidden" asp-for="Id" />
+                        </div>
+                        <div class="text-end pb-2 px-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Delete Role Modal Form -->
+<div class="modal fade"
+     id="modal-notification-delete-role"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="modal-notification"
+     aria-hidden="true">
+    <div class="modal-dialog modal-danger modal-dialog-centered modal-"
+         role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold" id="modal-title-notification">
+                    Your attention is required
+                </h6>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="py-3 text-center">
+                    <i class="fas fa-bell" style="font-size: 24px"></i>
+                    <h4 class="text-danger mt-4">You should read this!</h4>
+                    <p>
+                        This role can be deleted if there are no connected records.
+                        Are you sure you want to continue?
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary">Ok, Got it</button>
+            </div>
+        </div>
+    </div>
+</div>

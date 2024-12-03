@@ -1,0 +1,206 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-inner">
+    @* <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+        <div>
+            <h3 class="fw-bold mb-3">Dashboard</h3>
+            <h6 class="op-7 mb-2">Free Bootstrap 5 Admin Dashboard</h6>
+        </div>
+        <div class="ms-md-auto py-2 py-md-0">
+            <a href="#" class="btn btn-label-info btn-round me-2">Manage</a>
+            <a href="#" class="btn btn-primary btn-round">Add Customer</a>
+        </div>
+    </div> *@
+    <div class="row">
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-primary bubble-shadow-small">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">TOTAL TICKETS</p>
+                                <h4 class="card-title">1,294</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-info bubble-shadow-small">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">NEW TCIKETS</p>
+                                <h4 class="card-title">13</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-success bubble-shadow-small">
+                                <i class="fas fa-lock-open"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">OPEN TICKETS</p>
+                                <h4 class="card-title">45</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-secondary bubble-shadow-small">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">CLOSED TICKETS</p>
+                                <h4 class="card-title">576</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-head-row">
+                        <div class="card-title">Today's Support Tickets</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <a href="#">
+                        <div class="d-flex">
+                            <div class="avatar avatar-online">
+                                <span class="avatar-title rounded-circle border border-white bg-info">J</span>
+                            </div>
+                            <div class="flex-1 ms-3 pt-1">
+                                <h6 class="text-uppercase fw-bold mb-1">
+                                    Joko Subianto
+                                    <span class="text-warning ps-3">pending</span>
+                                </h6>
+                                <span class="text-muted">
+                                    I am facing some trouble with my viewport. When i
+                                    start my
+                                </span>
+                            </div>
+                            <div class="float-end pt-1">
+                                <small class="text-muted">8:40 PM</small>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="separator-dashed"></div>
+                    <a href="#">
+                        <div class="d-flex">
+                            <div class="avatar avatar-offline">
+                                <span class="avatar-title rounded-circle border border-white bg-secondary">P</span>
+                            </div>
+                            <div class="flex-1 ms-3 pt-1">
+                                <h6 class="text-uppercase fw-bold mb-1">
+                                    Prabowo Widodo
+                                    <span class="text-success ps-3">open</span>
+                                </h6>
+                                <span class="text-muted">I have some query regarding the license issue.</span>
+                            </div>
+                            <div class="float-end pt-1">
+                                <small class="text-muted">1 Day Ago</small>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="separator-dashed"></div>
+                    <a href="#">
+                        <div class="d-flex">
+                            <div class="avatar avatar-away">
+                                <span class="avatar-title rounded-circle border border-white bg-danger">L</span>
+                            </div>
+                            <div class="flex-1 ms-3 pt-1">
+                                <h6 class="text-uppercase fw-bold mb-1">
+                                    Lee Chong Wei
+                                    <span class="text-muted ps-3">closed</span>
+                                </h6>
+                                <span class="text-muted">
+                                    Is there any update plan for RTL version near
+                                    future?
+                                </span>
+                            </div>
+                            <div class="float-end pt-1">
+                                <small class="text-muted">2 Days Ago</small>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="separator-dashed"></div>
+                    <a href="#">
+                        <div class="d-flex">
+                            <div class="avatar avatar-offline">
+                                <span class="avatar-title rounded-circle border border-white bg-secondary">P</span>
+                            </div>
+                            <div class="flex-1 ms-3 pt-1">
+                                <h6 class="text-uppercase fw-bold mb-1">
+                                    Peter Parker
+                                    <span class="text-success ps-3">open</span>
+                                </h6>
+                                <span class="text-muted">I have some query regarding the license issue.</span>
+                            </div>
+                            <div class="float-end pt-1">
+                                <small class="text-muted">2 Day Ago</small>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="separator-dashed"></div>
+                    <a href="#">
+                        <div class="d-flex">
+                            <div class="avatar avatar-away">
+                                <span class="avatar-title rounded-circle border border-white bg-danger">L</span>
+                            </div>
+                            <div class="flex-1 ms-3 pt-1">
+                                <h6 class="text-uppercase fw-bold mb-1">
+                                    Logan Paul <span class="text-muted ps-3">closed</span>
+                                </h6>
+                                <span class="text-muted">
+                                    Is there any update plan for RTL version near
+                                    future?
+                                </span>
+                            </div>
+                            <div class="float-end pt-1">
+                                <small class="text-muted">2 Days Ago</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

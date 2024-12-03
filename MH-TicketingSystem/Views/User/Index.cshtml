@@ -1,0 +1,93 @@
+﻿@model IEnumerable<UserDepartmentViewModel>
+@{
+	ViewData["Title"] = "Users";
+}
+
+<div class="page-inner">
+    <div class="page-header">
+        <ul class="breadcrumbs">
+            <li class="nav-home">
+                <a asp-controller="Dashboard" asp-action="Index">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="User" asp-action="Index">Users</a>
+            </li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Users</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="user_datatables"
+                               class="table table-hover table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.UserName)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.DepartmentName)
+                                    </th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(var user in Model)
+                                {
+                                    <tr>
+                                        <td>@user.UserName</td>
+                                        <td>@user.DepartmentName</td>
+                                        <td>
+                                            <div class="d-grid gap-2 d-md-block">
+                                                <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@user.UserId">
+                                                    <span class="btn-label">
+                                                        <i class="fa fa-edit"></i>
+                                                    </span>
+                                                </a>
+                                                <button class="btn btn-sm btn-danger" onclick="Delete('@user.UserId')">
+                                                    <span class="btn-label">
+                                                        <i class="fa fa-trash"></i>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Delete Notification Modal-->
+<partial name="_DeleteDepartmentModal" />
+
+<!--   Core JS Files   -->
+<script src="~/js/core/jquery-3.7.1.min.js"></script>
+<script src="~/vendor/toastr/js/toastr.min.js"></script>
+<script src="~/vendor/sweetalert2/dist/sweetalert2.min.js"></script>
+<script src="~/js/user.js"></script>
+<script>
+    $(function () {
+    // Check if TempData["Success"] exists
+    @if (TempData["Success"] != null) {
+            <text>
+                toastr.success('@TempData["Success"]');
+            </text>
+        }
+    })
+</script>

@@ -1,0 +1,70 @@
+@* <div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <div class="right-box-padding">
+                    <div class="read-content">
+                        <div class="media pt-3">
+                            <h5 class="text-primary"><strong>ORDR</strong></h5>
+                            <p class="mb-0">20 May 2018</p>
+                        </div>
+                        <hr>
+                        <div class="media mb-4 mt-5">
+                            <div class="media-body">
+                                <span class="pull-right">07:23 AM</span>
+                                <h5 class="my-1 text-primary">A collection of textile samples lay spread</h5>
+                            </div>
+                        </div>
+                        <div class="read-content-body">
+                            <p>A collection of textile samples lay spread out on the table - Samsa was a travelling salesman - and above it there hung a picture</p>
+                            <p>
+                                Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life One day however a small line of blind text by the name of Lorem Ipsum decided to leave for
+                                the far World of Grammar. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus.
+                            </p>
+                            <p>
+                                Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut
+                                metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum
+                                rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,
+                            </p>
+                        </div>
+                        <div class="read-content-attachment">
+                            <h6>
+                            <i class="fa fa-download mb-2"></i> Attachments
+                                <span>(3)</span>
+                            </h6>
+                            <div class="row attachment">
+                                <div class="col-auto">
+                                    <a href="#" class="text-muted">My-Photo.png</a>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="#" class="text-muted">My-File.docx</a>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="#" class="text-muted">My-Resume.pdf</a>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="compose-content">
+                            <form action="#">
+                                <div class="form-group">
+                                    <textarea id="email-compose-editor" class="textarea_editor form-control bg-transparent" 
+                                    rows="15" placeholder="Enter text ..."></textarea>
+                                </div>
+                            </form>
+                            <h6 class="mb-4"><i class="fa fa-paperclip"></i> Attatchment</h6>
+                            <form action="#" class="d-flex flex-column align-items-center justify-content-center">
+                                <div class="fallback w-100">
+                                    <input type="file" class="dropify" data-default-file="" />
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="text-right mt-3">
+                        <button class="btn btn-primary btn-sl-sm mb-5" type="button">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> *@

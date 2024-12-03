@@ -1,0 +1,108 @@
+﻿@model IEnumerable<MH_TicketingSystem.Models.TicketPriorityLevelViewModel>
+@{
+    ViewData["Title"] = "Tickets";
+}
+
+<div class="page-inner">
+    <div class="page-header">
+        <ul class="breadcrumbs">
+            <li class="nav-home">
+                <a asp-controller="Dashboard" asp-action="Index">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Ticket" asp-action="Index">Tickets</a>
+            </li>
+        </ul>
+       @*  <div class="ms-md-auto pt-2 py-md-0">
+            <a href="#" class="btn btn-primary btn-round">Add Ticket</a>
+        </div> *@
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-head-row">
+                        <div class="card-title">Support Tickets</div>
+                        <div class="card-tools">
+                            <ul class="nav nav-pills nav-secondary nav-pills-no-bd nav-sm"
+                                id="pills-tab"
+                                role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                       id="pills-today"
+                                       data-bs-toggle="pill"
+                                       href="#pills-today"
+                                       role="tab"
+                                       aria-selected="true">Today</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active"
+                                       id="pills-week"
+                                       data-bs-toggle="pill"
+                                       href="#pills-week"
+                                       role="tab"
+                                       aria-selected="false">Week</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                       id="pills-month"
+                                       data-bs-toggle="pill"
+                                       href="#pills-month"
+                                       role="tab"
+                                       aria-selected="false">Month</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @foreach (var ticket in Model)
+                    {
+                        string ticketStatusString = Enum.GetName(typeof(TicketStatus), ticket.TicketStatus); // TicketStatus is required in submitting ticket, so ignore the warning
+                        string truncatedDescription = ticket.Description.Length > 50
+                        ? ticket.Description.Substring(0, 50) + "..."
+                        : ticket.Description;
+                        string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                        <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketId">
+                            <div class="d-flex">
+                                <div class="flex-1 ms-3 pt-1">
+                                    <h6 class="text-uppercase fw-bold mb-1">
+                                        @ticket.Subject.ToUpper()
+                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticketStatusString</span>
+                                    </h6>
+                                    <span class="text-muted">
+                                        @truncatedDescription
+                                    </span>
+                                    <br />
+                                    <small class="text-muted mr-2">
+                                        <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fa fa-comments"></i> 1 replies
+                                    </small>
+                                    <small class="text-muted mr-2">
+                                        <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
+                                    </small>
+                                </div>
+                                <div class="float-end pt-1">
+                                    <small class="text-muted">#@ticket.TicketNumber</small>
+                                    <button class="btn btn-primary btn-sm ms-3"
+                                            onclick="">
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </a>
+
+                        <div class="separator-dashed"></div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

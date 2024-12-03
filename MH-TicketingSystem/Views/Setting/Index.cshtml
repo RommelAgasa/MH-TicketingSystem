@@ -1,0 +1,243 @@
+﻿@using Microsoft.AspNetCore.Mvc
+@using Microsoft.AspNetCore.Identity
+@model MH_TicketingSystem.Models.SettingViewModel
+
+@{
+    ViewData["Title"] = "Settings";
+
+}
+
+<div class="page-inner">
+    <div class="page-header">
+        <ul class="breadcrumbs">
+            <li class="nav-home">
+                <a asp-controller="Dashboard" asp-action="Index">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Setting" asp-action="Index">System Setup</a>
+            </li>
+        </ul>
+    </div> <!-- end page header -->
+    <div class="row">
+
+        <!-- USER ROLE -->
+        <div class="col-md-6 col-sm-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-title">User Roles</div>
+                    <button type="button"
+                            class="btn btn-primary btn-round"
+                            id="btnAdd">
+                        Add New
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="user_role_datatables"
+                               class="table table-hover table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableRoles">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- PRIORITY LEVEL -->
+        <div class="col-md-6 col-sm-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-title">Priority Level</div>
+                    <button type="button" class="btn btn-primary btn-round"
+                            id="btnAddPLevel">
+                        Add New
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="priority_level_datatables"
+                               class="table table-hover table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plevelsTableBody">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- end col-md-6 -->
+    </div> <!-- end row -->
+</div>
+
+
+<!-- Role Modal Form -->
+<div class="modal fade"
+     id="RoleModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="modal-form"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <div class="card mb-0">
+                    <div class="card-header text-left">
+                        <h3 class="fw-bolder text-info" id="modalTitle"></h3>
+                    </div>
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <label asp-for="Role.Name">User Role</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control input-square" asp-for="Role.Name" />
+                        </div>
+                        <span id="ValidationName" class="text-danger" style="display: none"></span>
+                        <input asp-for="Role.Id" type="hidden" name="name"/>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="Save" type="submit" class="btn btn-primary" onclick="Insert()">Save</button>
+                <button id="Update" type="submit" class="btn btn-primary" style="display: none" onclick="Update()">Update</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="HideModal()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Add New Priority Level Form -->
+<div class="modal fade"
+     id="plevelModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="modal-form"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <div class="card mb-0">
+                    <div class="card-header text-left">
+                        <h3 class="fw-bolder text-info" id="plevelModalTitle"></h3>
+                    </div>
+                    <div class="card-body">
+                        <input id="pLevelID" type="hidden" />
+                        <div class="form-group">
+                            <label asp-for="PriorityLevel.PriorityLevelName">Priority Level Name</label>
+                            <div class="input-group mb-3">
+                                <input type="text"
+                                       class="form-control input-square"
+                                       asp-for="PriorityLevel.PriorityLevelName">
+                            </div>
+                            <span id="ValidationPLevelName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Priority Level Color</label>
+                            <div class="row gutters-xs">
+                                <div class="col-auto">
+                                    <label for="color-primary" class="colorinput" asp-for="PriorityLevel.PriorityLevelColor">
+                                        <input id="color-primary" name="color" asp-for="PriorityLevel.PriorityLevelColor"
+                                               type="radio"
+                                               value="primary"
+                                               class="colorinput-input" />
+                                        <span class="colorinput-color bg-primary"></span>
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="color-secondary" class="colorinput" asp-for="PriorityLevel.PriorityLevelColor">
+                                        <input id="color-secondary" name="color" asp-for="PriorityLevel.PriorityLevelColor"
+                                               type="radio"
+                                               value="secondary"
+                                               class="colorinput-input" />
+                                        <span class="colorinput-color bg-secondary"></span>
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="color-info" class="colorinput" asp-for="PriorityLevel.PriorityLevelColor">
+                                        <input id="color-info" name="color" asp-for="PriorityLevel.PriorityLevelColor"
+                                               type="radio"
+                                               value="info"
+                                               class="colorinput-input" />
+                                        <span class="colorinput-color bg-info"></span>
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="color-success" class="colorinput" asp-for="PriorityLevel.PriorityLevelColor">
+                                        <input id="color-success" name="color" asp-for="PriorityLevel.PriorityLevelColor"
+                                               type="radio"
+                                               value="success"
+                                               class="colorinput-input" />
+                                        <span class="colorinput-color bg-success"></span>
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="color-danger" class="colorinput" asp-for="PriorityLevel.PriorityLevelColor">
+                                        <input id="color-danger" name="color" asp-for="PriorityLevel.PriorityLevelColor"
+                                               type="radio"
+                                               value="danger"
+                                               class="colorinput-input" />
+                                        <span class="colorinput-color bg-danger"></span>
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="color-warning" class="colorinput" asp-for="PriorityLevel.PriorityLevelColor">
+                                        <input id="color-warning" name="color" asp-for="PriorityLevel.PriorityLevelColor"
+                                               type="radio"
+                                               value="warning"
+                                               class="colorinput-input" />
+                                        <span class="colorinput-color bg-warning"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <span id="ValidationPriorityLevelColor" class="text-danger"></span>
+                        </div> @* Priority Color Input *@
+                        <div class="form-group">
+                            <label asp-for="PriorityLevel.PriorityLevelDescription">Description</label>
+                            <textarea class="form-control" asp-for="PriorityLevel.PriorityLevelDescription" rows="3">
+                             </textarea>
+                            <span id="ValidationPriorityLevelDescription" class="text-danger"></span>
+                        </div>
+                        <div class="form-check">
+                            <label asp-for="PriorityLevel.IsPriorityLevelActive" class="form-check-label">Active</label>
+                            <input asp-for="PriorityLevel.IsPriorityLevelActive" type="checkbox" class="form-check-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="SavePLevel" type="button" class="btn btn-primary" onlclick="InsertPLevel()">Save</button>
+                <button id="UpdatePLevel" type="button" class="btn btn-primary" style="display:none;" onclick="UpdatePLevel()">Update</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="ClearDataPLevel()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--   Core JS Files   -->
+<script src="~/js/core/jquery-3.7.1.min.js"></script>
+<script src="~/vendor/toastr/js/toastr.min.js"></script>
+<script src="~/vendor/sweetalert2/dist/sweetalert2.min.js"></script>
+<script src="~/js/role.js"></script>
+<script src="~/js/priority_level.js"></script>
+
