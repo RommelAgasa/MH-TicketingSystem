@@ -90,19 +90,83 @@
                                     </small>
                                 </div>
                                 <div class="float-end pt-1">
-                                    <small class="text-muted">#@ticket.TicketNumber</small>
-                                    <button class="btn btn-primary btn-sm ms-3"
-                                            onclick="">
-                                        Close
-                                    </button>
+                                    <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
+                                    <div class="dropdown d-inline-block">
+                                        <button class="btn btn-sm" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: transparent; border: none;">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li>
+                                                <form asp-controller="Ticket" asp-action="CloseTicket"
+                                                      asp-route-id="@ticket.TicketId" method="post"
+                                                      class="d-inline">
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        Close
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form asp-controller="Ticket" asp-action="ReOpenTicket"
+                                                      asp-route-id="@ticket.TicketId" method="post"
+                                                      class="d-inline">
+                                                    <button type="submit" class="dropdown-item text-primary">
+                                                        Re-Open
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </a>
 
                         <div class="separator-dashed"></div>
                     }
+
+                    <nav aria-label="Ticket page navigation">
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <span aria-hidden="true">«</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">»</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!--   Core JS Files   -->
+<script src="~/js/core/jquery-3.7.1.min.js"></script>
+<script src="~/vendor/toastr/js/toastr.min.js"></script>
+<script src="~/js/ticket_pagination.js"></script>
+<script>
+    $(function () {
+    @if (ViewBag.SuccessMessage != null)
+    {
+        <text>
+               toastr.success('@ViewBag.SuccessMessage');
+        </text>
+    }
+    else if (ViewBag.ErrorMessage != null)
+    {
+        <text>
+               toastr.error('@ViewBag.ErrorMessage');
+        </text>
+    }
+        });
+</script>

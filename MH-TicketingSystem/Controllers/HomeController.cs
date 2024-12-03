@@ -26,7 +26,7 @@ namespace MH_TicketingSystem.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string ticketType = "all")
+        public async Task<IActionResult> Index(string ticketType = "all", string messageAlert = "", int errorCount = 0)
         {
             List<TicketPriorityLevelViewModel> tickets = null; // stored tickets
             // Get UserID the one that is login
@@ -55,6 +55,16 @@ namespace MH_TicketingSystem.Controllers
                     "closed" => allTickets.Where(t => t.TicketUserId == user.Id && t.TicketStatus == (int)TicketStatus.Closed).ToList(),
                     _ => allTickets.Where(t => t.TicketUserId == user.Id).ToList() // Return user's tickets only
                 };
+            }
+
+            // This is use in opening and closing the ticket alert message
+            if (!string.IsNullOrEmpty(messageAlert) && errorCount == 0)
+            {
+                ViewBag.SuccessMessage = messageAlert;
+            }
+            else if(!string.IsNullOrEmpty(messageAlert) && errorCount > 0)
+            {
+                ViewBag.ErrorMessage = messageAlert;
             }
 
             return View(tickets);
@@ -146,12 +156,12 @@ namespace MH_TicketingSystem.Controllers
                 {
                     await _context.Tickets.AddAsync(ticket);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "New ticket has been created.";
+                    ViewBag.MessageAlert = "New ticket has been created.";
                     return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
-                    TempData["Error"] = $"Error adding new ticket: {ex.Message}";
+                    ViewBag.MessageAlert = $"Error adding new ticket: {ex.Message}";
                 }
             }
 
@@ -210,17 +220,32 @@ namespace MH_TicketingSystem.Controllers
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
             var user = await _userManager.GetUserAsync(User);
-
+            string messageAlert = "";
+            int errorCount = 0;
             if (ticket != null && user != null && ticket.TicketStatus == 0)
             {
                 ticket.TicketStatus = (int)TicketStatus.Closed;
                 ticket.CloseBy = user.Id;
                 ticket.DateClose = DateTime.Now;
-                _context.Update(ticket);
-                await _context.SaveChangesAsync();
+
+                try
+                {
+                    _context.Update(ticket);
+                    await _context.SaveChangesAsync();
+                    messageAlert = "Ticket has been closed.";
+                }
+                catch (Exception ex)
+                {
+                    errorCount++;
+                    messageAlert = $"Error adding new ticket: {ex.Message}";
+                }
+            }
+            else
+            {
+                messageAlert = "Ticket is already closed.";
             }
 
-           return RedirectToAction("Index");
+           return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
 
 
@@ -228,17 +253,29 @@ namespace MH_TicketingSystem.Controllers
         public async Task<IActionResult> ReOpenTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
-
+            string messageAlert = "";
+            int errorCount = 0;
             if (ticket != null && ticket.TicketStatus == 1)
             {
                 ticket.TicketStatus = (int)TicketStatus.Open;
                 ticket.CloseBy = null;
                 ticket.DateClose = null;
-                _context.Update(ticket);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Update(ticket);
+                    await _context.SaveChangesAsync();
+                    messageAlert = "Successfully ticket reopen.";
+
+                }
+                catch (Exception ex)
+                {
+                    errorCount++;
+                    messageAlert = $"Error reopening the ticket: {ex.Message}";
+                }
+               
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
 
         [NonAction]
