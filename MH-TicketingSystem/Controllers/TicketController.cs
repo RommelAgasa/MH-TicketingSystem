@@ -56,6 +56,10 @@ namespace MH_TicketingSystem.Controllers
                                FileName = t.FileName ?? null,
                                DateTicket = t.DateTicket,
                                TicketStatus = t.TicketStatus,
+                               TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
+                                              t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
+                                              t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
+                                              "Unknown",
                                SLADeadline = (DateTime)t.SLADeadline,
                                PriorityLevelId = pl.Id,
                                PriorityLevelName = pl.PriorityLevelName,
@@ -175,27 +179,27 @@ namespace MH_TicketingSystem.Controllers
 
 
         [HttpGet]
-		public IActionResult DownloadFile(string filePath, string fileName)
-		{
-			if (string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(fileName))
-			{
-				return BadRequest("File path or name is missing.");
-			}
+        public IActionResult DownloadFile(string filePath, string fileName)
+        {
+            if (string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(fileName))
+            {
+                return BadRequest("File path or name is missing.");
+            }
 
-			try
-			{
-				var fileBytes = System.IO.File.ReadAllBytes(filePath);
-				return File(fileBytes, "application/octet-stream", fileName);
-			}
-			catch (FileNotFoundException)
-			{
-				return NotFound("File not found.");
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
+            try
+            {
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                return File(fileBytes, "application/octet-stream", fileName);
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound("File not found.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
-	}
+    }
 }

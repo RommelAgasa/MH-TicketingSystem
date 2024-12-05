@@ -45,24 +45,22 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @foreach(var ticket in Model)
+                    @foreach (var ticket in Model)
                     {
-                        string ticketStatusString = Enum.GetName(typeof(TicketStatus), ticket.TicketStatus); // TicketStatus is required in submitting ticket, so ignore the warning
                         string truncatedDescription = ticket.Description.Length > 50
                         ? ticket.Description.Substring(0, 50) + "..."
                         : ticket.Description;
-                        string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
-                        <a asp-asp-controller="Home"
+                        string formattedDate = ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                        <a asp-controller="Home"
                            asp-action="Details"
                            asp-route-id="@ticket.TicketId">
-                            <div class="d-flex">
+                            <div class="d-flex justify-content-between">
                                 <div class="flex-1 ms-3 pt-1">
                                     <h6 class="text-uppercase fw-bold mb-1">
-                                        <a 
-                                            style=" color: #007bff; text-decoration: none; font-weight: bold;">
+                                        <span style="color: #007bff; text-decoration: none; font-weight: bold;">
                                             @ticket.Subject.ToUpper()
-                                        </a>
-                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticketStatusString</span>
+                                        </span>
+                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
                                     </h6>
                                     <span class="text-muted">
                                         @truncatedDescription
@@ -79,22 +77,18 @@
                                     </small>
                                 </div>
                                 <div class="float-end pt-1">
-                                    <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
-                                        <div class="dropdown d-inline-block">
-                                        <button
-                                            class="btn btn-icon btn-clean"
-                                            type="button"
-                                            id="dropdownMenuButton"
-                                            data-bs-toggle="dropdown"
-                                            aria-haspopup="true"
-                                            aria-expanded="false"
-                                        >
+                                    <small class="text-muted me-1 d-inline-block">#@ticket.TicketNumber</small>
+                                    <div class="dropdown d-inline-block">
+                                        <button class="btn btn-icon btn-clean"
+                                                type="button"
+                                                id="dropdownMenuButton"
+                                                data-bs-toggle="dropdown"
+                                                aria-haspopup="true"
+                                                aria-expanded="false">
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
-                                        <div
-                                            class="dropdown-menu"
-                                            aria-labelledby="dropdownMenuButton"
-                                        >
+                                        <div class="dropdown-menu"
+                                             aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item" href="@Url.Action("CloseTicket", "Home", new { id = ticket.TicketId })">Close</a>
                                             <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Home", new { id = ticket.TicketId })">Re-Open</a>
                                         </div>
@@ -104,6 +98,7 @@
                         </a>
                         <div class="separator-dashed"></div>
                     }
+
 
                     <nav aria-label="Ticket page navigation" style="display: @(Model.Count() <= 0? "none" : "block");">
                         <ul class="pagination">
@@ -136,98 +131,96 @@
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                        <a asp-controller="Home" asp-action="Index" 
-                        asp-route-ticketType="all">@(User.IsInRole("Admin") ? "All Tickets" : "My Tickets")</a>
+                        <a asp-controller="Home" asp-action="Index"
+                           asp-route-ticketType="all">@(User.IsInRole("Admin") ? "All Tickets" : "My Tickets")</a>
                     </li>
                     <li class="list-group-item">
-                        <a asp-controller="Home" asp-action="Index" 
-                        asp-route-ticketType="open">@(User.IsInRole("Admin") ? "Open Tickets" : "My Open Tickets")</a>
-                     </li>
+                        <a asp-controller="Home" asp-action="Index"
+                           asp-route-ticketType="open">@(User.IsInRole("Admin") ? "Open Tickets" : "My Open Tickets")</a>
+                    </li>
                     <li class="list-group-item">
-                        <a asp-controller="Home" asp-action="Index" 
-                        asp-route-ticketType="closed">@(User.IsInRole("Admin") ? "Closed Tickets" : "My Closed Tickets")</a>
+                        <a asp-controller="Home" asp-action="Index"
+                           asp-route-ticketType="closed">@(User.IsInRole("Admin") ? "Closed Tickets" : "My Closed Tickets")</a>
                     </li>
                 </ul>
             </div>
             <div class="card">
-                  <div class="card-header">
+                <div class="card-header">
                     <div class="card-head-row card-tools-still-right">
-                      <div class="card-title">Recent Activity</div>
-                      <div class="card-tools">
+                        <div class="card-title">Recent Activity</div>
+                        @*<div class="card-tools">
                         <div class="dropdown">
-                          <button
+                            <button
                             class="btn btn-icon btn-clean"
                             type="button"
                             id="dropdownMenuButton"
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                          >
+                            >
                             <i class="fas fa-ellipsis-h"></i>
-                          </button>
-                          <div
+                            </button>
+                            <div
                             class="dropdown-menu"
                             aria-labelledby="dropdownMenuButton"
-                          >
+                            >
                             <a class="dropdown-item" href="#">Action</a>
                             <a class="dropdown-item" href="#">Another action</a>
                             <a class="dropdown-item" href="#"
-                              >Something else here</a
+                                >Something else here</a
                             >
-                          </div>
+                            </div>
                         </div>
-                      </div>
+                    </div>*@
                     </div>
-                  </div>
-                  <div class="card-body">
-                    <ol class="activity-feed">
-                      <li class="feed-item feed-item-secondary">
-                        <time class="date" datetime="9-25">Sep 25</time>
-                        <span class="text"
-                          >Responded to need
-                          <a href="#">"Volunteer opportunity"</a></span
-                        >
-                      </li>
-                      <li class="feed-item feed-item-success">
-                        <time class="date" datetime="9-24">Sep 24</time>
-                        <span class="text"
-                          >Added an interest
-                          <a href="#">"Volunteer Activities"</a></span
-                        >
-                      </li>
-                      <li class="feed-item feed-item-info">
-                        <time class="date" datetime="9-23">Sep 23</time>
-                        <span class="text"
-                          >Joined the group
-                          <a href="single-group.php"
-                            >"Boardsmanship Forum"</a
-                          ></span
-                        >
-                      </li>
-                      <li class="feed-item feed-item-warning">
-                        <time class="date" datetime="9-21">Sep 21</time>
-                        <span class="text"
-                          >Responded to need
-                          <a href="#">"In-Kind Opportunity"</a></span
-                        >
-                      </li>
-                      <li class="feed-item feed-item-danger">
-                        <time class="date" datetime="9-18">Sep 18</time>
-                        <span class="text"
-                          >Created need
-                          <a href="#">"Volunteer Opportunity"</a></span
-                        >
-                      </li>
-                      <li class="feed-item">
-                        <time class="date" datetime="9-17">Sep 17</time>
-                        <span class="text"
-                          >Attending the event
-                          <a href="single-event.php">"Some New Event"</a></span
-                        >
-                      </li>
-                    </ol>
-                  </div>
                 </div>
+                <div class="card-body">
+                    <ol class="activity-feed">
+                        <li class="feed-item feed-item-secondary">
+                            <time class="date" datetime="9-25">Sep 25</time>
+                            <span class="text">
+                                Responded to need
+                                <a href="#">"Volunteer opportunity"</a>
+                            </span>
+                        </li>
+                        <li class="feed-item feed-item-success">
+                            <time class="date" datetime="9-24">Sep 24</time>
+                            <span class="text">
+                                Added an interest
+                                <a href="#">"Volunteer Activities"</a>
+                            </span>
+                        </li>
+                        <li class="feed-item feed-item-info">
+                            <time class="date" datetime="9-23">Sep 23</time>
+                            <span class="text">
+                                Joined the group
+                                <a href="single-group.php">"Boardsmanship Forum"</a>
+                            </span>
+                        </li>
+                        <li class="feed-item feed-item-warning">
+                            <time class="date" datetime="9-21">Sep 21</time>
+                            <span class="text">
+                                Responded to need
+                                <a href="#">"In-Kind Opportunity"</a>
+                            </span>
+                        </li>
+                        <li class="feed-item feed-item-danger">
+                            <time class="date" datetime="9-18">Sep 18</time>
+                            <span class="text">
+                                Created need
+                                <a href="#">"Volunteer Opportunity"</a>
+                            </span>
+                        </li>
+                        <li class="feed-item">
+                            <time class="date" datetime="9-17">Sep 17</time>
+                            <span class="text">
+                                Attending the event
+                                <a href="single-event.php">"Some New Event"</a>
+                            </span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -242,13 +235,13 @@
     @if (ViewBag.SuccessMessage != null)
     {
         <text>
-           toastr.success('@ViewBag.SuccessMessage');
+               toastr.success('@ViewBag.SuccessMessage');
         </text>
     }
     else if (ViewBag.ErrorMessage != null)
     {
         <text>
-           toastr.error('@ViewBag.ErrorMessage');
+               toastr.error('@ViewBag.ErrorMessage');
         </text>
     }
         });

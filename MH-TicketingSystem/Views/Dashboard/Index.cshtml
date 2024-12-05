@@ -1,18 +1,11 @@
-﻿@{
+@model IEnumerable<MH_TicketingSystem.Models.TicketPriorityLevelViewModel>
+
+@{
     ViewData["Title"] = "Dashboard";
 }
 
 <div class="page-inner">
-    @* <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-        <div>
-            <h3 class="fw-bold mb-3">Dashboard</h3>
-            <h6 class="op-7 mb-2">Free Bootstrap 5 Admin Dashboard</h6>
-        </div>
-        <div class="ms-md-auto py-2 py-md-0">
-            <a href="#" class="btn btn-label-info btn-round me-2">Manage</a>
-            <a href="#" class="btn btn-primary btn-round">Add Customer</a>
-        </div>
-    </div> *@
+
     <div class="row">
         <div class="col-sm-6 col-md-3">
             <div class="card card-stats card-round">
@@ -26,7 +19,7 @@
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
                                 <p class="card-category">TOTAL TICKETS</p>
-                                <h4 class="card-title">1,294</h4>
+                                <h4 class="card-title" id="totalTickets">@ViewBag.TicketStat.TotalTickets</h4>
                             </div>
                         </div>
                     </div>
@@ -45,7 +38,7 @@
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
                                 <p class="card-category">NEW TCIKETS</p>
-                                <h4 class="card-title">13</h4>
+                                <h4 class="card-title" id="newTickets">@ViewBag.TicketStat.NewTickets</h4>
                             </div>
                         </div>
                     </div>
@@ -64,7 +57,7 @@
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
                                 <p class="card-category">OPEN TICKETS</p>
-                                <h4 class="card-title">45</h4>
+                                <h4 class="card-title" id="openTickets">@ViewBag.TicketStat.OpenTickets</h4>
                             </div>
                         </div>
                     </div>
@@ -83,7 +76,7 @@
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
                                 <p class="card-category">CLOSED TICKETS</p>
-                                <h4 class="card-title">576</h4>
+                                <h4 class="card-title" id="closedTickets">@ViewBag.TicketStat.ClosedTickets</h4>
                             </div>
                         </div>
                     </div>
@@ -100,107 +93,139 @@
                         <div class="card-title">Today's Support Tickets</div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <a href="#">
-                        <div class="d-flex">
-                            <div class="avatar avatar-online">
-                                <span class="avatar-title rounded-circle border border-white bg-info">J</span>
+                <div class="card-body" id="todayTickets">
+                    @foreach (var ticket in Model)
+                    {
+                        string truncatedDescription = ticket.Description.Length > 50
+                        ? ticket.Description.Substring(0, 50) + "..."
+                        : ticket.Description;
+                        string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                        <a asp-controller="Ticket"
+                           asp-action="Details"
+                           asp-route-id="@ticket.TicketId">
+                            <div class="d-flex justify-content-between">
+                                <div class="flex-1 ms-3 pt-1">
+                                    <h6 class="text-uppercase fw-bold mb-1">
+                                        <span style=" color: #007bff; text-decoration: none; font-weight: bold;">
+                                            @ticket.Subject.ToUpper()
+                                        </span>
+                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
+                                    </h6>
+                                    <span class="text-muted">
+                                        @truncatedDescription
+                                    </span>
+                                    <br />
+                                    <small class="text-muted mr-2">
+                                        <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fa fa-comments"></i> 1 replies
+                                    </small>
+                                    <small class="text-muted mr-2">
+                                        <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
+                                    </small>
+                                </div>
+                                <div class="float-end pt-1">
+                                    <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
+                                </div>
                             </div>
-                            <div class="flex-1 ms-3 pt-1">
-                                <h6 class="text-uppercase fw-bold mb-1">
-                                    Joko Subianto
-                                    <span class="text-warning ps-3">pending</span>
-                                </h6>
-                                <span class="text-muted">
-                                    I am facing some trouble with my viewport. When i
-                                    start my
-                                </span>
-                            </div>
-                            <div class="float-end pt-1">
-                                <small class="text-muted">8:40 PM</small>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="separator-dashed"></div>
-                    <a href="#">
-                        <div class="d-flex">
-                            <div class="avatar avatar-offline">
-                                <span class="avatar-title rounded-circle border border-white bg-secondary">P</span>
-                            </div>
-                            <div class="flex-1 ms-3 pt-1">
-                                <h6 class="text-uppercase fw-bold mb-1">
-                                    Prabowo Widodo
-                                    <span class="text-success ps-3">open</span>
-                                </h6>
-                                <span class="text-muted">I have some query regarding the license issue.</span>
-                            </div>
-                            <div class="float-end pt-1">
-                                <small class="text-muted">1 Day Ago</small>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="separator-dashed"></div>
-                    <a href="#">
-                        <div class="d-flex">
-                            <div class="avatar avatar-away">
-                                <span class="avatar-title rounded-circle border border-white bg-danger">L</span>
-                            </div>
-                            <div class="flex-1 ms-3 pt-1">
-                                <h6 class="text-uppercase fw-bold mb-1">
-                                    Lee Chong Wei
-                                    <span class="text-muted ps-3">closed</span>
-                                </h6>
-                                <span class="text-muted">
-                                    Is there any update plan for RTL version near
-                                    future?
-                                </span>
-                            </div>
-                            <div class="float-end pt-1">
-                                <small class="text-muted">2 Days Ago</small>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="separator-dashed"></div>
-                    <a href="#">
-                        <div class="d-flex">
-                            <div class="avatar avatar-offline">
-                                <span class="avatar-title rounded-circle border border-white bg-secondary">P</span>
-                            </div>
-                            <div class="flex-1 ms-3 pt-1">
-                                <h6 class="text-uppercase fw-bold mb-1">
-                                    Peter Parker
-                                    <span class="text-success ps-3">open</span>
-                                </h6>
-                                <span class="text-muted">I have some query regarding the license issue.</span>
-                            </div>
-                            <div class="float-end pt-1">
-                                <small class="text-muted">2 Day Ago</small>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="separator-dashed"></div>
-                    <a href="#">
-                        <div class="d-flex">
-                            <div class="avatar avatar-away">
-                                <span class="avatar-title rounded-circle border border-white bg-danger">L</span>
-                            </div>
-                            <div class="flex-1 ms-3 pt-1">
-                                <h6 class="text-uppercase fw-bold mb-1">
-                                    Logan Paul <span class="text-muted ps-3">closed</span>
-                                </h6>
-                                <span class="text-muted">
-                                    Is there any update plan for RTL version near
-                                    future?
-                                </span>
-                            </div>
-                            <div class="float-end pt-1">
-                                <small class="text-muted">2 Days Ago</small>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
+                        <div class="separator-dashed"></div>
+                    }
                 </div>
             </div>
         </div>
 
     </div>
 </div>
+
+<script src="~/js/dist/browser/signalr.js"></script>
+<script src="~/js/dist/browser/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/dashboardHub")
+    .build();
+
+    connection.on("UpdateMetric", (metric, value) => {
+        // Update the corresponding card dynamically
+        if (metric === "totalTickets") {
+            document.querySelector("#totalTickets").textContent = value;
+        } else if (metric === "newTickets") {
+            document.querySelector("#newTickets").textContent = value;
+        } else if (metric === "openTickets") {
+            document.querySelector("#openTickets").textContent = value;
+        } else if (metric === "closedTickets") {
+            document.querySelector("#closedTickets").textContent = value;
+        }
+    });
+
+    connection.on("ReceiveNewTicket", (ticket, ticketStatus, priorityLevelColor) => {
+
+        console.log(priorityLevelColor);
+
+
+        const truncatedDescription = ticket.description.length > 50
+            ? ticket.description.substring(0, 50) + "..."
+            : ticket.description;
+        const formattedDate = new Date(ticket.dateTicket).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+        });
+
+        const ticketHtml = `
+            <a asp-controller="Ticket" asp-action="Details" asp-route-id="${ticket.ticketId}">
+                <div class="d-flex">
+                    <div class="flex-1 ms-3 pt-1">
+                        <h6 class="text-uppercase fw-bold mb-1">
+                            <span style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                ${ticket.subject.toUpperCase()}
+                            </span>
+                            <span class="text-${priorityLevelColor} ps-3">${ticketStatus}</span>
+                        </h6>
+                        <span class="text-muted">
+                            ${truncatedDescription}
+                        </span>
+                        <br />
+                        <small class="text-muted mr-2">
+                            <i class="fa fa-calendar"></i> ${formattedDate}
+                        </small>
+                        <small class="text-muted">
+                            <i class="fa fa-comments"></i> 1 replies
+                        </small>
+                        <small class="text-muted mr-2">
+                            <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                            })}
+                        </small>
+                    </div>
+                    <div class="float-end pt-1">
+                        <small class="text-muted mr-1 d-inline-block">#${ticket.ticketNumber}</small>
+                    </div>
+                </div>
+            </a>
+            <div class="separator-dashed"></div>
+        `;
+
+        const container = document.getElementById("todayTickets");
+        container.insertAdjacentHTML("afterbegin", ticketHtml);
+      });
+
+    connection.start().catch(err => console.error(err));
+
+    connection.onclose(async () => {
+        console.log("Disconnected. Attempting to reconnect...");
+        try {
+            await connection.start();
+            console.log("Reconnected successfully.");
+        } catch (err) {
+            console.error("Failed to reconnect:", err);
+        }
+    });
+
+
+</script>

@@ -12,7 +12,6 @@ namespace MH_TicketingSystem.Controllers
         {
             _roleManager = roleManager;
         }
-        
 
         // List all the roles created
         //public IActionResult Index()

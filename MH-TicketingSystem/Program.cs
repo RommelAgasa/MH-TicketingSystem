@@ -16,14 +16,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-    {
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequiredLength = 3;
-        options.Password.RequireLowercase = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireDigit = true;
-        options.SignIn.RequireConfirmedAccount = false;
-    })
+{
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 3;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireDigit = true;
+    options.SignIn.RequireConfirmedAccount = false;
+})
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -79,5 +79,7 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 app.MapHub<ChatHub>("/chatHub");
+app.MapHub<DashboardHub>("/dashboardHub");
+
 
 app.Run();

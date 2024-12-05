@@ -3,7 +3,7 @@
 @* @model IEnumerable<UserTicketConversation> *@
 
 @{
-	Layout = "_HomeLayout";
+	Layout = "_Layout";
 	ViewData["Title"] = "Metro Health Ticketing System";
 	var currentUser = await UserManager.GetUserAsync(User);
 	var currentUserId = currentUser?.Id; // User's unique ID
@@ -75,7 +75,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="card">
 		<div class="row g-0">
 			<div class="col-12 ">

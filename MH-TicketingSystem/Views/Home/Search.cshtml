@@ -29,89 +29,88 @@
     </div>
 
     <div class="row p-4 justify-content-center">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-head-row">
-                        <div class="card-title">@((Model.Count() > 0) ? "Search Results" : "No Result Found")</div>
-                    </div>
+        <div class="card">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">@((Model.Count() > 0) ? "Search Results" : "No Result Found")</div>
                 </div>
-                <div class="card-body">
-                    @foreach (var ticket in Model)
-                    {
-                        string ticketStatusString = Enum.GetName(typeof(TicketStatus), ticket.TicketStatus); // TicketStatus is required in submitting ticket, so ignore the warning
-                        string truncatedDescription = ticket.Description.Length > 50
-                        ? ticket.Description.Substring(0, 50) + "..."
-                        : ticket.Description;
-                        string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
-                        <a asp-asp-controller="Home"
-                           asp-action="Details"
-                           asp-route-id="@ticket.TicketId">
-                            <div class="d-flex">
-                                <div class="flex-1 ms-3 pt-1">
-                                    <h6 class="text-uppercase fw-bold mb-1">
-                                        <a style=" color: #007bff; text-decoration: none; font-weight: bold;">
-                                            @ticket.Subject.ToUpper()
-                                        </a>
-                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticketStatusString</span>
-                                    </h6>
-                                    <span class="text-muted">
-                                        @truncatedDescription
-                                    </span>
-                                    <br />
-                                    <small class="text-muted mr-2">
-                                        <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
-                                    </small>
-                                    <small class="text-muted">
-                                        <i class="fa fa-comments"></i> 1 replies
-                                    </small>
-                                    <small class="text-muted mr-2">
-                                        <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
-                                    </small>
-                                </div>
-                                <div class="float-end pt-1">
-                                    <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
-                                    <div class="dropdown d-inline-block">
-                                        <button class="btn btn-icon btn-clean"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <div class="dropdown-menu"
-                                             aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item" href="@Url.Action("CloseTicket", "Home", new { id = ticket.TicketId })">Close</a>
-                                            <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Home", new { id = ticket.TicketId })">Re-Open</a>
-                                        </div>
+            </div>
+            <div class="card-body">
+                @foreach (var ticket in Model)
+                {
+                    string truncatedDescription = ticket.Description.Length > 50
+                    ? ticket.Description.Substring(0, 50) + "..."
+                    : ticket.Description;
+                    string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                    <a asp-asp-controller="Home"
+                       asp-action="Details"
+                       asp-route-id="@ticket.TicketId">
+                        <div class="d-flex">
+                            <div class="flex-1 ms-3 pt-1">
+                                <h6 class="text-uppercase fw-bold mb-1">
+                                    <a style=" color: #007bff; text-decoration: none; font-weight: bold;">
+                                        @ticket.Subject.ToUpper()
+                                    </a>
+                                    <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
+                                </h6>
+                                <span class="text-muted">
+                                    @truncatedDescription
+                                </span>
+                                <br />
+                                <small class="text-muted mr-2">
+                                    <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fa fa-comments"></i> 1 replies
+                                </small>
+                                <small class="text-muted mr-2">
+                                    <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
+                                </small>
+                            </div>
+                            <div class="float-end pt-1">
+                                <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-icon btn-clean"
+                                            type="button"
+                                            id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu"
+                                         aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item" href="@Url.Action("CloseTicket", "Home", new { id = ticket.TicketId })">Close</a>
+                                        <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Home", new { id = ticket.TicketId })">Re-Open</a>
                                     </div>
                                 </div>
                             </div>
-                        </a>
-                        <div class="separator-dashed"></div>
-                    }
+                        </div>
+                    </a>
+                    <div class="separator-dashed"></div>
+                }
 
-                    <nav aria-label="Ticket page navigation" style="display: @(Model.Count() <= 0? "none" : "block");">
-                        <ul class="pagination">
-                            <li class="page-item">
-                                <a class="page-link" href="#" aria-label="Previous">
-                                    <span aria-hidden="true">«</span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-                            </li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#" aria-label="Next">
-                                    <span aria-hidden="true">»</span>
-                                    <span class="sr-only">Next</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                <nav aria-label="Ticket page navigation" style="display: @(Model.Count() <= 0? "none" : "block");">
+                    <ul class="pagination">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">«</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">»</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
+        </div>
     </div>
 
 </div>
@@ -125,13 +124,13 @@
     @if (ViewBag.SuccessMessage != null)
     {
         <text>
-               toastr.success('@ViewBag.SuccessMessage');
+                   toastr.success('@ViewBag.SuccessMessage');
         </text>
     }
     else if (ViewBag.ErrorMessage != null)
     {
         <text>
-               toastr.error('@ViewBag.ErrorMessage');
+                   toastr.error('@ViewBag.ErrorMessage');
         </text>
     }
         });

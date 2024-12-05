@@ -9,7 +9,7 @@ namespace MH_TicketingSystem.Models
     {
         Open,
         Closed,
-        Reopened
+        Pending
     }
 
     public class Tickets

@@ -19,7 +19,7 @@
                 <a asp-controller="Ticket" asp-action="Index">Tickets</a>
             </li>
         </ul>
-       @*  <div class="ms-md-auto pt-2 py-md-0">
+        @*  <div class="ms-md-auto pt-2 py-md-0">
             <a href="#" class="btn btn-primary btn-round">Add Ticket</a>
         </div> *@
     </div>
@@ -28,7 +28,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-head-row">
-                       
+
                         <div class="card-title">Support Tickets</div>
                         <div class="card-tools">
                             <ul class="nav nav-pills nav-secondary nav-pills-no-bd nav-sm">
@@ -54,20 +54,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body" id="tickets">
                     @foreach (var ticket in Model)
                     {
-                        string ticketStatusString = Enum.GetName(typeof(TicketStatus), ticket.TicketStatus); // TicketStatus is required in submitting ticket, so ignore the warning
                         string truncatedDescription = ticket.Description.Length > 50
                         ? ticket.Description.Substring(0, 50) + "..."
                         : ticket.Description;
                         string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
                         <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketId">
-                            <div class="d-flex">
+                            <div class="d-flex justify-content-between">
                                 <div class="flex-1 ms-3 pt-1">
                                     <h6 class="text-uppercase fw-bold mb-1">
                                         @ticket.Subject.ToUpper()
-                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticketStatusString</span>
+                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
                                     </h6>
                                     <span class="text-muted">
                                         @truncatedDescription
@@ -83,8 +82,8 @@
                                         <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
                                     </small>
                                 </div>
-                                <div class="float-end pt-1">
-                                    <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
+                                <div class="pt-1 text-end">
+                                    <small class="text-muted me-1 d-inline-block">#@ticket.TicketNumber</small>
                                     <div class="dropdown d-inline-block">
                                         <button class="btn btn-icon btn-clean"
                                                 type="button"
@@ -135,20 +134,107 @@
 <!--   Core JS Files   -->
 <script src="~/js/core/jquery-3.7.1.min.js"></script>
 <script src="~/vendor/toastr/js/toastr.min.js"></script>
+<script src="~/js/dist/browser/signalr.js"></script>
+<script src="~/js/dist/browser/signalr.min.js"></script>
 <script src="~/js/ticket_pagination.js"></script>
 <script>
     $(function () {
     @if (ViewBag.SuccessMessage != null)
     {
         <text>
-               toastr.success('@ViewBag.SuccessMessage');
+                   toastr.success('@ViewBag.SuccessMessage');
         </text>
     }
     else if (ViewBag.ErrorMessage != null)
     {
         <text>
-               toastr.error('@ViewBag.ErrorMessage');
+                   toastr.error('@ViewBag.ErrorMessage');
         </text>
     }
         });
+</script>
+
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/dashboardHub")
+    .build();
+
+    connection.on("ReceiveNewTicket", (ticket, ticketStatus, priorityLevelColor) => {
+        const truncatedDescription = ticket.description.length > 50
+            ? ticket.description.substring(0, 50) + "..."
+            : ticket.description;
+        const formattedDate = new Date(ticket.dateTicket).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+        });
+
+       const ticketHtml = `
+            <a href="/Home/Details?id=${ticket.ticketId}" class="ticket-link">
+                <div class="d-flex justify-content-between">
+                    <div class="flex-1 ms-3 pt-1">
+                        <h6 class="text-uppercase fw-bold mb-1">
+                            <a style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                ${ticket.subject.toUpperCase()}
+                            </a>
+                            <span class="text-${priorityLevelColor} ps-3">${ticketStatus}</span>
+                        </h6>
+                        <span class="text-muted">
+                            ${truncatedDescription}
+                        </span>
+                        <br />
+                        <small class="text-muted mr-2">
+                            <i class="fa fa-calendar"></i> ${formattedDate}
+                        </small>
+                        <small class="text-muted">
+                            <i class="fa fa-comments"></i> 1 replies
+                        </small>
+                        <small class="text-muted mr-2">
+                            <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                            })}
+                        </small>
+                    </div>
+                    <div class="float-end pt-1">
+                        <small class="text-muted me-1 d-inline-block">#${ticket.ticketNumber}</small>
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-icon btn-clean"
+                                    type="button"
+                                    id="dropdownMenuButton"
+                                    data-bs-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu"
+                                 aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="/Ticket/CloseTicket/${ticket.ticketId}">Close</a>
+                                <a class="dropdown-item" href="/Ticket/ReOpenTicket/${ticket.ticketId}">Re-Open</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <div class="separator-dashed"></div>
+        `;
+
+
+        const container = document.getElementById("tickets");
+        // Add event delegation to handle clicks on dynamically added links
+        container.addEventListener("click", (event) => {
+            if (event.target && event.target.matches(".ticket-link")) {
+                // If the clicked element is a link with class "ticket-link"
+                window.location.href = event.target.getAttribute("href");
+            }
+        });
+
+        container.insertAdjacentHTML("afterbegin", ticketHtml);
+      });
+
+    connection.start().catch(err => console.error(err));
+
 </script>
