@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using NuGet.Versioning;
+using System.Collections.Generic;
 
 
 namespace MH_TicketingSystem.Controllers
@@ -19,17 +20,21 @@ namespace MH_TicketingSystem.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public HomeController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<IdentityUser> userManager)
+        public HomeController(ApplicationDbContext context, 
+                            IWebHostEnvironment webHostEnvironment, 
+                            UserManager<IdentityUser> userManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string ticketType = "all", string messageAlert = "", int errorCount = 0)
+        public async Task<IActionResult> Index(string ticketType = "all", string messageAlert = "", 
+                    int errorCount = 0)
         {
+
             List<TicketPriorityLevelViewModel> tickets = null; // stored tickets
-            // Get UserID the one that is login
+                                                               // Get UserID the one that is login
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return View();
 
@@ -62,12 +67,13 @@ namespace MH_TicketingSystem.Controllers
             {
                 ViewBag.SuccessMessage = messageAlert;
             }
-            else if(!string.IsNullOrEmpty(messageAlert) && errorCount > 0)
+            else if (!string.IsNullOrEmpty(messageAlert) && errorCount > 0)
             {
                 ViewBag.ErrorMessage = messageAlert;
             }
 
             return View(tickets);
+
         }
 
         public async Task<List<TicketPriorityLevelViewModel>> GetAllTickets()
@@ -200,9 +206,9 @@ namespace MH_TicketingSystem.Controllers
 		}
 
 		// Update ticket - User who open and the date opened
-		public async Task UpdateTicketOpenBy(int id) // Change async void to async Task
+		public async Task UpdateTicketOpenBy(int id)
 		{
-			var ticket = await _context.Tickets.FindAsync(id); // Use FindAsync for async operation
+			var ticket = await _context.Tickets.FindAsync(id);
 			var user = await _userManager.GetUserAsync(User); // Get UserID of the logged-in user
 
             if (ticket != null && user != null && ticket.OpenBy == null)
@@ -211,11 +217,10 @@ namespace MH_TicketingSystem.Controllers
 				ticket.DateOpen = DateTime.Now;
 
 				_context.Tickets.Update(ticket);
-				await _context.SaveChangesAsync(); // Use SaveChangesAsync for async operation
+				await _context.SaveChangesAsync(); 
 			}
 		}
 
-        [HttpPost]
         public async Task<IActionResult> CloseTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -248,8 +253,6 @@ namespace MH_TicketingSystem.Controllers
            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
 
-
-        [HttpPost]
         public async Task<IActionResult> ReOpenTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -277,6 +280,46 @@ namespace MH_TicketingSystem.Controllers
 
             return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
+
+
+        public async Task<IActionResult> Search(string? search)
+        {
+            List<TicketPriorityLevelViewModel> searchTickets;
+
+            if (string.IsNullOrEmpty(search))
+            {
+                searchTickets = await GetAllTickets();
+            }
+            else
+            {
+                var searchQuery = search.ToLower();
+
+                searchTickets = await _context.Tickets
+                    .Include(t => t.PriorityLevel) // Include the PriorityLevel relationship
+                    .Where(t => EF.Functions.Like(t.TicketNumber.ToString(), $"%{searchQuery}%")
+                                || EF.Functions.Like(t.Subject, $"%{searchQuery}%")
+                                || EF.Functions.Like(t.Description, $"%{searchQuery}%"))
+                    .Select(t => new TicketPriorityLevelViewModel
+                    {
+                        TicketUserId = t.UserId,
+                        TicketId = t.Id,
+                        TicketNumber = t.TicketNumber,
+                        Subject = t.Subject,
+                        Description = t.Description,
+                        FilePath = t.FilePath ?? null,
+                        FileName = t.FileName ?? null,
+                        DateTicket = t.DateTicket,
+                        TicketStatus = t.TicketStatus,
+                        SLADeadline = (DateTime)t.SLADeadline,
+                        PriorityLevelId = t.PriorityLevel.Id,
+                        PriorityLevelName = t.PriorityLevel.PriorityLevelName,
+                        PriorityLevelColor = t.PriorityLevel.PriorityLevelColor
+                    })
+                    .ToListAsync();
+            }
+            return View(searchTickets);
+        }
+
 
         [NonAction]
         public List<SelectListItem> GetPriorityLevels()

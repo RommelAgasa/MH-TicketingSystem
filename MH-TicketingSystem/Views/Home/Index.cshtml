@@ -10,9 +10,9 @@
 <div class="container">
     <div class="row text-center p-4 justify-content-center">
         <div class="d-flex justify-content-center align-items-center" style="height: 60px;">
-            <form class="navbar-left navbar-form nav-search me-2 w-75" action="">
+            <form class="navbar-left navbar-form nav-search me-2 w-75" asp-controller="Home" asp-action="Search" method="post">
                 <div class="input-group shadow">
-                    <input type="text" placeholder="Search Ticket ..." class="form-control" />
+                    <input name="search" type="text" placeholder="Search Ticket ..." class="form-control" />
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-search">
                             <i class="fa fa-search search-icon"></i>
@@ -80,32 +80,24 @@
                                 </div>
                                 <div class="float-end pt-1">
                                     <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
-                                    <div class="dropdown d-inline-block">
-                                        <button class="btn btn-sm" type="button"
-                                                data-bs-toggle="dropdown" aria-expanded="false"
-                                                style="background-color: transparent; border: none;">
+                                        <div class="dropdown d-inline-block">
+                                        <button
+                                            class="btn btn-icon btn-clean"
+                                            type="button"
+                                            id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false"
+                                        >
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
-                                        <ul class="dropdown-menu" role="menu">
-                                            <li>
-                                                <form asp-controller="Home" asp-action="CloseTicket"
-                                                      asp-route-id="@ticket.TicketId" method="post"
-                                                      class="d-inline">
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        Close
-                                                    </button>
-                                                </form>
-                                            </li>
-                                            <li>
-                                                <form asp-controller="Home" asp-action="ReOpenTicket"
-                                                      asp-route-id="@ticket.TicketId" method="post"
-                                                      class="d-inline">
-                                                    <button type="submit" class="dropdown-item text-primary">
-                                                        Re-Open
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        </ul>
+                                        <div
+                                            class="dropdown-menu"
+                                            aria-labelledby="dropdownMenuButton"
+                                        >
+                                            <a class="dropdown-item" href="@Url.Action("CloseTicket", "Home", new { id = ticket.TicketId })">Close</a>
+                                            <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Home", new { id = ticket.TicketId })">Re-Open</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -157,6 +149,85 @@
                     </li>
                 </ul>
             </div>
+            <div class="card">
+                  <div class="card-header">
+                    <div class="card-head-row card-tools-still-right">
+                      <div class="card-title">Recent Activity</div>
+                      <div class="card-tools">
+                        <div class="dropdown">
+                          <button
+                            class="btn btn-icon btn-clean"
+                            type="button"
+                            id="dropdownMenuButton"
+                            data-bs-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                          >
+                            <i class="fas fa-ellipsis-h"></i>
+                          </button>
+                          <div
+                            class="dropdown-menu"
+                            aria-labelledby="dropdownMenuButton"
+                          >
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <a class="dropdown-item" href="#"
+                              >Something else here</a
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ol class="activity-feed">
+                      <li class="feed-item feed-item-secondary">
+                        <time class="date" datetime="9-25">Sep 25</time>
+                        <span class="text"
+                          >Responded to need
+                          <a href="#">"Volunteer opportunity"</a></span
+                        >
+                      </li>
+                      <li class="feed-item feed-item-success">
+                        <time class="date" datetime="9-24">Sep 24</time>
+                        <span class="text"
+                          >Added an interest
+                          <a href="#">"Volunteer Activities"</a></span
+                        >
+                      </li>
+                      <li class="feed-item feed-item-info">
+                        <time class="date" datetime="9-23">Sep 23</time>
+                        <span class="text"
+                          >Joined the group
+                          <a href="single-group.php"
+                            >"Boardsmanship Forum"</a
+                          ></span
+                        >
+                      </li>
+                      <li class="feed-item feed-item-warning">
+                        <time class="date" datetime="9-21">Sep 21</time>
+                        <span class="text"
+                          >Responded to need
+                          <a href="#">"In-Kind Opportunity"</a></span
+                        >
+                      </li>
+                      <li class="feed-item feed-item-danger">
+                        <time class="date" datetime="9-18">Sep 18</time>
+                        <span class="text"
+                          >Created need
+                          <a href="#">"Volunteer Opportunity"</a></span
+                        >
+                      </li>
+                      <li class="feed-item">
+                        <time class="date" datetime="9-17">Sep 17</time>
+                        <span class="text"
+                          >Attending the event
+                          <a href="single-event.php">"Some New Event"</a></span
+                        >
+                      </li>
+                    </ol>
+                  </div>
+                </div>
         </div>
     </div>
 
