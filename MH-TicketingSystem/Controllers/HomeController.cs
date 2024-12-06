@@ -129,6 +129,8 @@ namespace MH_TicketingSystem.Controllers
         public async Task<IActionResult> Create(Tickets ticket, IFormFile file = null)
         {
             ViewBag.PriorityLevel = GetPriorityLevels();
+            string messageAlert = "";
+            int errorCount = 0;
             if (ModelState.IsValid)
             {
                 string fileName = "";
@@ -172,7 +174,7 @@ namespace MH_TicketingSystem.Controllers
                 {
                     await _context.Tickets.AddAsync(ticket);
                     await _context.SaveChangesAsync();
-                    ViewBag.MessageAlert = "New ticket has been created.";
+                    messageAlert = "New ticket has been created.";
 
                     // Dashboard Realtime Update
                     int totalTickets = _context.Tickets.Count();
@@ -194,7 +196,7 @@ namespace MH_TicketingSystem.Controllers
                             .FirstOrDefault(c => c.Id == ticket.PriorityLevelId)?.PriorityLevelName;
 
                     await _hubContext.Clients.All.SendAsync("ReceiveNewTicket", ticket, ticketStatus, priorityLevelColor);
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
                 }
                 catch (Exception ex)
                 {

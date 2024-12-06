@@ -60,52 +60,57 @@
                         string truncatedDescription = ticket.Description.Length > 50
                         ? ticket.Description.Substring(0, 50) + "..."
                         : ticket.Description;
-                        string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
-                        <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketId">
-                            <div class="d-flex justify-content-between">
-                                <div class="flex-1 ms-3 pt-1">
-                                    <h6 class="text-uppercase fw-bold mb-1">
-                                        @ticket.Subject.ToUpper()
-                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
-                                    </h6>
-                                    <span class="text-muted">
-                                        @truncatedDescription
-                                    </span>
-                                    <br />
-                                    <small class="text-muted mr-2">
-                                        <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
-                                    </small>
-                                    <small class="text-muted">
-                                        <i class="fa fa-comments"></i> 1 replies
-                                    </small>
-                                    <small class="text-muted mr-2">
-                                        <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
-                                    </small>
-                                </div>
-                                <div class="pt-1 text-end">
-                                    <small class="text-muted me-1 d-inline-block">#@ticket.TicketNumber</small>
-                                    <div class="dropdown d-inline-block">
-                                        <button class="btn btn-icon btn-clean"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <div class="dropdown-menu"
-                                             aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item" href="@Url.Action("CloseTicket", "Home", new { id = ticket.TicketId })">Close</a>
-                                            <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Home", new { id = ticket.TicketId })">Re-Open</a>
+                        string formattedDate = ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                        <div id="ticketContainer">
+                            <a asp-controller="Home"
+                               asp-action="Details" asp-route-id="@ticket.TicketId">
+                                <div class="d-flex justify-content-between">
+                                    <div class="flex-1 ms-3 pt-1">
+                                        <h6 class="text-uppercase fw-bold mb-1">
+                                            <span style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                                @ticket.Subject.ToUpper()
+                                            </span>
+                                            <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
+                                        </h6>
+                                        <span class="text-muted">
+                                            @truncatedDescription
+                                        </span>
+                                        <br />
+                                        <small class="text-muted mr-2">
+                                            <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fa fa-comments"></i> 1 replies
+                                        </small>
+                                        <small class="text-muted mr-2">
+                                            <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
+                                        </small>
+                                    </div>
+                                    <div class="float-end pt-1">
+                                        <small class="text-muted me-1 d-inline-block">#@ticket.TicketNumber</small>
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-icon btn-clean"
+                                                    type="button"
+                                                    id="dropdownMenuButton"
+                                                    data-bs-toggle="dropdown"
+                                                    aria-haspopup="true"
+                                                    aria-expanded="false">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div class="dropdown-menu"
+                                                 aria-labelledby="dropdownMenuButton">
+                                                <a class="dropdown-item" href="@Url.Action("CloseTicket", "Ticket", new { id = ticket.TicketId })">Close</a>
+                                                <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Ticket", new { id = ticket.TicketId })">Re-Open</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </a>
-
-                        <div class="separator-dashed"></div>
+                            </a>
+                            <div class="separator-dashed"></div>
+                        </div>
                     }
-
+                </div>
+                <div class="p-3">
                     <nav aria-label="Ticket page navigation" style="display: @(Model.Count() <= 0? "none" : "block");">
                         <ul class="pagination">
                             <li class="page-item">
@@ -114,9 +119,6 @@
                                     <span class="sr-only">Previous</span>
                                 </a>
                             </li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
                             <li class="page-item">
                                 <a class="page-link" href="#" aria-label="Next">
                                     <span aria-hidden="true">»</span>
@@ -126,13 +128,14 @@
                         </ul>
                     </nav>
                 </div>
-            </div>
+            </div>  <!--card-->
         </div>
     </div>
 </div>
 
 <!--   Core JS Files   -->
 <script src="~/js/core/jquery-3.7.1.min.js"></script>
+<script src="~/js/core/popper.min.js"></script>
 <script src="~/vendor/toastr/js/toastr.min.js"></script>
 <script src="~/js/dist/browser/signalr.js"></script>
 <script src="~/js/dist/browser/signalr.min.js"></script>

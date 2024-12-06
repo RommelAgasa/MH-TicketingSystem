@@ -93,47 +93,66 @@
                         <div class="card-title">Today's Support Tickets</div>
                     </div>
                 </div>
-                <div class="card-body" id="todayTickets">
+                <div class="card-body" id="tickets">
                     @foreach (var ticket in Model)
                     {
                         string truncatedDescription = ticket.Description.Length > 50
                         ? ticket.Description.Substring(0, 50) + "..."
                         : ticket.Description;
-                        string formattedDate = @ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
-                        <a asp-controller="Ticket"
-                           asp-action="Details"
-                           asp-route-id="@ticket.TicketId">
-                            <div class="d-flex justify-content-between">
-                                <div class="flex-1 ms-3 pt-1">
-                                    <h6 class="text-uppercase fw-bold mb-1">
-                                        <span style=" color: #007bff; text-decoration: none; font-weight: bold;">
-                                            @ticket.Subject.ToUpper()
+                        string formattedDate = ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                        <div id="ticketContainer">
+                            <a asp-controller="Home"
+                               asp-action="Details" asp-route-id="@ticket.TicketId">
+                                <div class="d-flex justify-content-between">
+                                    <div class="flex-1 ms-3 pt-1">
+                                        <h6 class="text-uppercase fw-bold mb-1">
+                                            <span style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                                @ticket.Subject.ToUpper()
+                                            </span>
+                                            <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
+                                        </h6>
+                                        <span class="text-muted">
+                                            @truncatedDescription
                                         </span>
-                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
-                                    </h6>
-                                    <span class="text-muted">
-                                        @truncatedDescription
-                                    </span>
-                                    <br />
-                                    <small class="text-muted mr-2">
-                                        <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
-                                    </small>
-                                    <small class="text-muted">
-                                        <i class="fa fa-comments"></i> 1 replies
-                                    </small>
-                                    <small class="text-muted mr-2">
-                                        <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
-                                    </small>
+                                        <br />
+                                        <small class="text-muted mr-2">
+                                            <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fa fa-comments"></i> 1 replies
+                                        </small>
+                                        <small class="text-muted mr-2">
+                                            <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
+                                        </small>
+                                    </div>
+                                    <div class="float-end pt-1">
+                                        <small class="text-muted me-1 d-inline-block">#@ticket.TicketNumber</small>
+                                    </div>
                                 </div>
-                                <div class="float-end pt-1">
-                                    <small class="text-muted mr-1 d-inline-block">#@ticket.TicketNumber</small>
-                                </div>
-                            </div>
-                        </a>
-                        <div class="separator-dashed"></div>
+                            </a>
+                            <div class="separator-dashed"></div>
+                        </div>
                     }
                 </div>
-            </div>
+                <div class="p-3">
+                    <nav aria-label="Ticket page navigation" style="display: @(Model.Count() <= 0? "none" : "block");">
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <span aria-hidden="true">«</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">»</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div> <!--card-->
         </div>
 
     </div>
@@ -141,6 +160,7 @@
 
 <script src="~/js/dist/browser/signalr.js"></script>
 <script src="~/js/dist/browser/signalr.min.js"></script>
+<script src="~/js/ticket_pagination.js"></script>
 <script>
     const connection = new signalR.HubConnectionBuilder()
     .withUrl("/dashboardHub")
