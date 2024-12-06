@@ -62,9 +62,8 @@
                         : ticket.Description;
                         string formattedDate = ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
                         <div id="ticketContainer">
-                            <a asp-controller="Home"
-                               asp-action="Details" asp-route-id="@ticket.TicketId">
-                                <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between">
+                                <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketId">
                                     <div class="flex-1 ms-3 pt-1">
                                         <h6 class="text-uppercase fw-bold mb-1">
                                             <span style="color: #007bff; text-decoration: none; font-weight: bold;">
@@ -86,26 +85,25 @@
                                             <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
                                         </small>
                                     </div>
-                                    <div class="float-end pt-1">
-                                        <small class="text-muted me-1 d-inline-block">#@ticket.TicketNumber</small>
-                                        <div class="dropdown d-inline-block">
+                                </a>
+                                <div class="float-end pt-1">
+                                    <small class="text-muted me-1 d-inline-block">#@ticket.TicketNumber</small>
+                                    <div class="dropdown d-inline-block">
+                                        <div class="dropdown">
                                             <button class="btn btn-icon btn-clean"
                                                     type="button"
-                                                    id="dropdownMenuButton"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-haspopup="true"
-                                                    aria-expanded="false">
+                                                    onclick="document.getElementById('menu-@ticket.TicketId').classList.toggle('show')">
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
-                                            <div class="dropdown-menu"
-                                                 aria-labelledby="dropdownMenuButton">
+                                            <div id="menu-@ticket.TicketId" class="dropdown-menu">
                                                 <a class="dropdown-item" href="@Url.Action("CloseTicket", "Ticket", new { id = ticket.TicketId })">Close</a>
                                                 <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Ticket", new { id = ticket.TicketId })">Re-Open</a>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
-                            </a>
+                            </div>
                             <div class="separator-dashed"></div>
                         </div>
                     }

@@ -6,26 +6,13 @@
     const pagination = document.querySelector(".pagination"); // Select the pagination container
     const totalPages = Math.ceil(tickets.length / itemsPerPage);
 
-    console.log(tickets);
-
     function showPage(page) {
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
 
-        console.log(page);
-        console.log(start);
-        console.log(end);
         // Show only tickets for the current page
         tickets.forEach((ticket, index) => {
-            if (index >= start && index < end) {
-                ticket.style.display = "block";
-                console.log("Display");
-            }
-            else {
-                ticket.style.display = "none";
-                console.log("Hide");
-            }
-            //ticket.style.display = index >= start && index < end ? "block" : "none";
+            ticket.style.display = index >= start && index < end ? "block" : "none";
         });
 
         // Update active pagination link

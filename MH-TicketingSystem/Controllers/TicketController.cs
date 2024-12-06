@@ -114,7 +114,6 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
-        [HttpPost]
         public async Task<IActionResult> CloseTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -147,8 +146,6 @@ namespace MH_TicketingSystem.Controllers
             return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
 
-
-        [HttpPost]
         public async Task<IActionResult> ReOpenTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
