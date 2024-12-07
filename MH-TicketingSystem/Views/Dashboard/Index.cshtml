@@ -194,9 +194,6 @@
 
     connection.on("ReceiveNewTicket", (ticket, ticketStatus, priorityLevelColor) => {
 
-        console.log(priorityLevelColor);
-
-
         const truncatedDescription = ticket.description.length > 50
             ? ticket.description.substring(0, 50) + "..."
             : ticket.description;
@@ -209,42 +206,56 @@
         });
 
         const ticketHtml = `
-            <a asp-controller="Ticket" asp-action="Details" asp-route-id="${ticket.ticketId}">
-                <div class="d-flex">
-                    <div class="flex-1 ms-3 pt-1">
-                        <h6 class="text-uppercase fw-bold mb-1">
-                            <span style="color: #007bff; text-decoration: none; font-weight: bold;">
-                                ${ticket.subject.toUpperCase()}
+            <div id="ticketContainer">
+                <div class="d-flex justify-content-between">
+                    <a href="/Ticket/Details/${ticket.id}">
+                        <div class="flex-1 ms-3 pt-1">
+                            <h6 class="text-uppercase fw-bold mb-1">
+                                <span style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                    ${ticket.subject.toUpperCase()}
+                                </span>
+                                <span class="text-${priorityLevelColor} ps-3">${ticketStatus}</span>
+                            </h6>
+                            <span class="text-muted">
+                                ${truncatedDescription}
                             </span>
-                            <span class="text-${priorityLevelColor} ps-3">${ticketStatus}</span>
-                        </h6>
-                        <span class="text-muted">
-                            ${truncatedDescription}
-                        </span>
-                        <br />
-                        <small class="text-muted mr-2">
-                            <i class="fa fa-calendar"></i> ${formattedDate}
-                        </small>
-                        <small class="text-muted">
-                            <i class="fa fa-comments"></i> 1 replies
-                        </small>
-                        <small class="text-muted mr-2">
-                            <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                            })}
-                        </small>
-                    </div>
+                            <br />
+                            <small class="text-muted mr-2">
+                                <i class="fa fa-calendar"></i> ${formattedDate}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fa fa-comments"></i> 1 replies
+                            </small>
+                            <small class="text-muted mr-2">
+                                <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                })}
+                            </small>
+                        </div>
+                    </a>
                     <div class="float-end pt-1">
-                        <small class="text-muted mr-1 d-inline-block">#${ticket.ticketNumber}</small>
+                        <small class="text-muted me-1 d-inline-block">#${ticket.ticketNumber}</small>
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-icon btn-clean"
+                                    type="button"
+                                    onclick="document.getElementById('menu-${ticket.id}').classList.toggle('show')">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div id="menu-${ticket.id}" class="dropdown-menu">
+                                <a class="dropdown-item" href="/Ticket/CloseTicket/${ticket.id}">Close</a>
+                                <a class="dropdown-item" href="/Ticket/ReOpenTicket/${ticket.id}">Re-Open</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </a>
-            <div class="separator-dashed"></div>
+                <div class="separator-dashed"></div>
+            </div>
         `;
 
-        const container = document.getElementById("todayTickets");
+
+        const container = document.getElementById("tickets");
         container.insertAdjacentHTML("afterbegin", ticketHtml);
       });
 

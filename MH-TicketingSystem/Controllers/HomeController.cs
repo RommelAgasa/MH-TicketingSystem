@@ -86,6 +86,7 @@ namespace MH_TicketingSystem.Controllers
         {
             var tickets = await (from t in _context.Tickets
                                  join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
+                                 orderby t.DateTicket descending
                                  select new TicketPriorityLevelViewModel
                                  {
                                      TicketUserId = t.UserId,
@@ -193,7 +194,7 @@ namespace MH_TicketingSystem.Controllers
                                               "Unknown";
 
                     var priorityLevelColor = _context.PriorityLevels
-                            .FirstOrDefault(c => c.Id == ticket.PriorityLevelId)?.PriorityLevelName;
+                            .FirstOrDefault(c => c.Id == ticket.PriorityLevelId)?.PriorityLevelColor;
 
                     await _hubContext.Clients.All.SendAsync("ReceiveNewTicket", ticket, ticketStatus, priorityLevelColor);
                     return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });

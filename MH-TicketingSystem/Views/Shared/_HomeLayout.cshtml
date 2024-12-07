@@ -58,18 +58,20 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item active">
+                    <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" 
+                                            && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
                         <a class="nav-link text-white" asp-controller="Home" asp-action="Index">My Area <span class="sr-only">(current)</span></a>
                     </li>
                     @if (User.IsInRole("Admin"))
                     {
-                        <li class="nav-item">
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard"
+                                            && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
                             <a class="nav-link text-white" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                         </li>
                     }
                     <li class="nav-item">
                         <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                            <a href="#" class="nav-link text-white border-0" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
+                            <a class="nav-link text-white border-0" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
                         </form>
                     </li>
                 </ul>

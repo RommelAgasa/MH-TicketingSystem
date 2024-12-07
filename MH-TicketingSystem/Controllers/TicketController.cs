@@ -45,6 +45,7 @@ namespace MH_TicketingSystem.Controllers
         {
             var tickets = (from t in _context.Tickets
                            join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
+                           orderby t.DateTicket descending
                            select new TicketPriorityLevelViewModel
                            {
                                TicketUserId = t.UserId,

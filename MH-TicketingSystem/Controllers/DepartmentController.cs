@@ -73,7 +73,7 @@ namespace MH_TicketingSystem.Controllers
 
         // Update department details
         [HttpPost]
-        public JsonResult Update(Department model)
+        public JsonResult Update(Department department)
         {
             if (!ModelState.IsValid)
             {
@@ -82,7 +82,7 @@ namespace MH_TicketingSystem.Controllers
 
             try
             {
-                _context.Departments.Update(model);
+                _context.Departments.Update(department);
                 _context.SaveChanges();
                 return Json(new { success = true, message = "Department details updated." });
             }
