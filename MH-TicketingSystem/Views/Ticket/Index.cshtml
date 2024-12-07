@@ -97,6 +97,7 @@
                                             </button>
                                             <div id="menu-@ticket.TicketId" class="dropdown-menu">
                                                 <a class="dropdown-item" href="@Url.Action("CloseTicket", "Ticket", new { id = ticket.TicketId })">Close</a>
+                                                <a class="dropdown-item" href="@Url.Action("PendingTicket", "Ticket", new { id = ticket.TicketId })">Pending</a>
                                                 <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Ticket", new { id = ticket.TicketId })">Re-Open</a>
                                             </div>
                                         </div>
@@ -213,6 +214,7 @@
                             </button>
                             <div id="menu-${ticket.id}" class="dropdown-menu">
                                 <a class="dropdown-item" href="/Ticket/CloseTicket/${ticket.id}">Close</a>
+                                <a class="dropdown-item" href="/Ticket/PendingTicket/${ticket.id}">Pending</a>
                                 <a class="dropdown-item" href="/Ticket/ReOpenTicket/${ticket.id}">Re-Open</a>
                             </div>
                         </div>

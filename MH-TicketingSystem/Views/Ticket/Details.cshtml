@@ -86,7 +86,7 @@
 						</div> *@
 						<div class="flex-grow-1 pl-3">
 							<strong>
-								<h3>@Model[0].Department</h3>
+								<h3>@ViewBag.DepartmentName</h3>
 							</strong>
 						</div>
 					</div>
@@ -96,7 +96,7 @@
 						@foreach (var conversation in Model)
 						{
 							// Check if the message is from the current user or someone else
-							var isCurrentUser = conversation.UserId == currentUserId; // Assuming you have the current user's ID
+							var isCurrentUser = conversation.UserId == currentUserId;
 							var user = conversation.UserId == currentUserId ? "You" : conversation.Username;
 							<div class="@((isCurrentUser ? "chat-message-right" : "chat-message-left") + " pb-4")">
 								<div>

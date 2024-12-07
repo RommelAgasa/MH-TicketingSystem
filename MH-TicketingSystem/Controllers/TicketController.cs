@@ -2,6 +2,7 @@
 using MH_TicketingSystem.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace MH_TicketingSystem.Controllers
@@ -71,13 +72,39 @@ namespace MH_TicketingSystem.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
+            // Get the details of the ticket
             ViewBag.Ticket = await _context.Tickets.FindAsync(id);
 
+            // Get the department -- this is use in UI
+            if (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value == "Admin")
+            {
+                // Get the Department Name the one who made the ticket
+                ViewBag.DepartmentName = await (from t in _context.Tickets
+                                                join u in _context.Users on t.UserId equals u.Id
+                                                join ur in _context.UserRoles on u.Id equals ur.UserId
+                                                join r in _context.Roles on ur.RoleId equals r.Id
+                                                join d in _context.Departments on r.Id equals d.RoleId
+                                                select d.DepartmentName
+                                            ).FirstOrDefaultAsync();
+            }
+            else
+            {
+                // The one who made the ticket will only show the 
+                // Department who is admin of the system
+                ViewBag.DepartmentName = await (from r in _context.Roles
+                                                join d in _context.Departments on r.Id equals d.RoleId
+                                                where r.Name == "Admin"
+                                                select d.DepartmentName
+                                          ).FirstOrDefaultAsync();
+            }
+
+            // Get the conversation ticket
             var userTicketConvo = await (from tc in _context.TicketConversation
                                          join u in _context.Users on tc.UserID equals u.Id
                                          join ur in _context.UserRoles on u.Id equals ur.UserId
                                          join r in _context.Roles on ur.RoleId equals r.Id
                                          join d in _context.Departments on r.Id equals d.RoleId
+                                         where tc.TicketId == id
                                          orderby tc.Timestamp ascending
                                          select new UserTicketConversation
                                          {
@@ -121,7 +148,7 @@ namespace MH_TicketingSystem.Controllers
             var user = await _userManager.GetUserAsync(User);
             string messageAlert = "";
             int errorCount = 0;
-            if (ticket != null && user != null && ticket.TicketStatus == 0)
+            if (ticket != null && user != null && (ticket.TicketStatus == 0 || ticket.TicketStatus == 2))
             {
                 ticket.TicketStatus = (int)TicketStatus.Closed;
                 ticket.CloseBy = user.Id;
@@ -142,6 +169,38 @@ namespace MH_TicketingSystem.Controllers
             else
             {
                 messageAlert = "Ticket is already closed.";
+            }
+
+            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
+        }
+
+
+        public async Task<IActionResult> PendingTicket(int id)
+        {
+            Tickets ticket = await _context.Tickets.FindAsync(id);
+            string messageAlert = "";
+            int errorCount = 0;
+            if (ticket != null && ticket.TicketStatus == 0)
+            {
+                ticket.TicketStatus = (int)TicketStatus.Pending;
+                try
+                {
+                    _context.Update(ticket);
+                    await _context.SaveChangesAsync();
+                    messageAlert = "Successfully ticket pending.";
+
+                }
+                catch (Exception ex)
+                {
+                    errorCount++;
+                    messageAlert = $"Error reopening the ticket: {ex.Message}";
+                }
+
+            }
+
+            if (ticket.TicketStatus == (int)TicketStatus.Pending)
+            {
+                messageAlert = "Ticket is already in pending status.";
             }
 
             return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
@@ -172,8 +231,14 @@ namespace MH_TicketingSystem.Controllers
 
             }
 
+            if (ticket.TicketStatus == (int)TicketStatus.Pending)
+            {
+                messageAlert = "You cannot reopen ticket that is in pending status.";
+            }
+
             return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
+
 
 
         [HttpGet]

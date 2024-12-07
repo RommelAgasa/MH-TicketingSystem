@@ -87,6 +87,10 @@
                                             </button>
                                             <div id="menu-@ticket.TicketId" class="dropdown-menu">
                                                 <a class="dropdown-item" href="@Url.Action("CloseTicket", "Home", new { id = ticket.TicketId })">Close</a>
+                                                @if (User.IsInRole("Admin"))
+                                                {
+                                                    <a class="dropdown-item" href="@Url.Action("PendingTicket", "Home", new { id = ticket.TicketId })">Pending</a>
+                                                }
                                                 <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Home", new { id = ticket.TicketId })">Re-Open</a>
                                             </div>
                                         </div>
@@ -243,6 +247,112 @@
                    toastr.error('@ViewBag.ErrorMessage');
             </text>
         }
+
     });
 
 </script>
+<script src="~/js/dist/browser/signalr.js"></script>
+<script src="~/js/dist/browser/signalr.min.js"></script>
+@section Scripts {
+    @if (User.IsInRole("Admin"))
+    {
+        <script>
+            const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/dashboardHub")
+            .build();
+
+            connection.on("UpdateMetric", (metric, value) => {
+                // Update the corresponding card dynamically
+                if (metric === "totalTickets") {
+                    document.querySelector("#totalTickets").textContent = value;
+                } else if (metric === "newTickets") {
+                    document.querySelector("#newTickets").textContent = value;
+                } else if (metric === "openTickets") {
+                    document.querySelector("#openTickets").textContent = value;
+                } else if (metric === "closedTickets") {
+                    document.querySelector("#closedTickets").textContent = value;
+                }
+            });
+
+            connection.on("ReceiveNewTicket", (ticket, ticketStatus, priorityLevelColor) => {
+
+                const truncatedDescription = ticket.description.length > 50
+                    ? ticket.description.substring(0, 50) + "..."
+                    : ticket.description;
+                const formattedDate = new Date(ticket.dateTicket).toLocaleString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                });
+
+                const ticketHtml = `
+                    <div id="ticketContainer">
+                        <div class="d-flex justify-content-between">
+                            <a href="/Ticket/Details/${ticket.id}">
+                                <div class="flex-1 ms-3 pt-1">
+                                    <h6 class="text-uppercase fw-bold mb-1">
+                                        <span style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                            ${ticket.subject.toUpperCase()}
+                                        </span>
+                                        <span class="text-${priorityLevelColor} ps-3">${ticketStatus}</span>
+                                    </h6>
+                                    <span class="text-muted">
+                                        ${truncatedDescription}
+                                    </span>
+                                    <br />
+                                    <small class="text-muted mr-2">
+                                        <i class="fa fa-calendar"></i> ${formattedDate}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fa fa-comments"></i> 1 replies
+                                    </small>
+                                    <small class="text-muted mr-2">
+                                        <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                            year: "numeric",
+                                        })}
+                                    </small>
+                                </div>
+                            </a>
+                            <div class="float-end pt-1">
+                                <small class="text-muted me-1 d-inline-block">#${ticket.ticketNumber}</small>
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-icon btn-clean"
+                                            type="button"
+                                            onclick="document.getElementById('menu-${ticket.id}').classList.toggle('show')">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div id="menu-${ticket.id}" class="dropdown-menu">
+                                        <a class="dropdown-item" href="/Home/CloseTicket/${ticket.id}">Close</a>
+                                        <a class="dropdown-item" href="/Home/PendingTicket/${ticket.id}">Pending</a>
+                                        <a class="dropdown-item" href="/Home/ReOpenTicket/${ticket.id}">Re-Open</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="separator-dashed"></div>
+                    </div>
+                `;
+
+
+                const container = document.getElementById("tickets");
+                container.insertAdjacentHTML("afterbegin", ticketHtml);
+              });
+
+            connection.start().catch(err => console.error(err));
+
+            connection.onclose(async () => {
+                console.log("Disconnected. Attempting to reconnect...");
+                try {
+                    await connection.start();
+                    console.log("Reconnected successfully.");
+                } catch (err) {
+                    console.error("Failed to reconnect:", err);
+                }
+            });
+        </script>
+    }
+}
