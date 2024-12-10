@@ -4,6 +4,11 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MH_TicketingSystem.Controllers
 {
+
+    /// <summary>
+    /// This controller use in creating role and use in creating department
+    /// </summary>
+    [Authorize]
     public class AppRolesController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -13,19 +18,11 @@ namespace MH_TicketingSystem.Controllers
             _roleManager = roleManager;
         }
 
-        // List all the roles created
-        //public IActionResult Index()
-        //{
-        //    var roles = _roleManager.Roles;
-        //    return View(roles);
-        //}
-
-        //[HttpGet]
-        //public IActionResult Create()
-        //{
-        //    return View();
-        //}
-
+        /// <summary>
+        /// Use in submitting or creating new role in the system
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Create(IdentityRole model)
         {

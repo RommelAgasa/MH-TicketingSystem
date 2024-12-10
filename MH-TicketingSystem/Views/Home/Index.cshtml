@@ -20,11 +20,10 @@
                     </div>
                 </div>
             </form>
-            <a type="button" asp-controller="Home" asp-action="Create" class="btn btn-black ms-2">Add Ticket</a>
-            @* @if (User.IsInRole("Employee")) // Display only in Employee
+            @if (User.IsInRole("Employee")) // Display only in Employee
             {
                 <a type="button" asp-controller="Home" asp-action="Create" class="btn btn-black ms-2">Add Ticket</a>
-            } *@
+            }
         </div>
         <hr class="mt-3 mb-3" />
     </div>
@@ -36,10 +35,27 @@
                     <div class="card-head-row">
                         @{
                             var ticketType = Context.Request.Query["ticketType"];
-                            string ticketView = "";
-                            if (ticketType == "closed") ticketView = "My Closed Tickets";
-                            else if (ticketType == "open") ticketView = "My Open Tickets";
-                            else ticketView = "My Tickets";
+                            bool isAdmin = User.IsInRole("Admin") ? true : false;
+
+                            string ticketView;
+                            switch (ticketType)
+                            {
+                                case "closed":
+                                    ticketView = isAdmin ? "Closed Tickets" : "My Closed Tickets";
+                                    break;
+                                case "open":
+                                    ticketView = isAdmin ? "Open Tickets" : "My Open Tickets";
+                                    break;
+                                case "today":
+                                    ticketView = "Today's Tickets";
+                                    break;
+                                case "pending":
+                                    ticketView = isAdmin ? "Pending Tickets" : "My Pending Tickets";
+                                    break;
+                                default:
+                                    ticketView = isAdmin ? "All Tickets" : "My Tickets";
+                                    break;
+                            }
                         }
                         <div class="card-title">@ticketView</div>
                     </div>
@@ -132,11 +148,19 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
                         <a asp-controller="Home" asp-action="Index"
+                           asp-route-ticketType="today">Today's Ticket</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a asp-controller="Home" asp-action="Index"
                            asp-route-ticketType="all">@(User.IsInRole("Admin") ? "All Tickets" : "My Tickets")</a>
                     </li>
                     <li class="list-group-item">
                         <a asp-controller="Home" asp-action="Index"
                            asp-route-ticketType="open">@(User.IsInRole("Admin") ? "Open Tickets" : "My Open Tickets")</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a asp-controller="Home" asp-action="Index"
+                           asp-route-ticketType="pending">@(User.IsInRole("Admin") ? "Pending Tickets" : "My Pending Tickets")</a>
                     </li>
                     <li class="list-group-item">
                         <a asp-controller="Home" asp-action="Index"
@@ -148,30 +172,6 @@
                 <div class="card-header">
                     <div class="card-head-row card-tools-still-right">
                         <div class="card-title">Recent Activity</div>
-                        <div class="card-tools">
-                            <div class="dropdown">
-                                <button
-                                class="btn btn-icon btn-clean"
-                                type="button"
-                                id="dropdownMenuButton"
-                                data-bs-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false"
-                                >
-                                <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div
-                                class="dropdown-menu"
-                                aria-labelledby="dropdownMenuButton"
-                                >
-                                <a class="dropdown-item" href="#">Action</a>
-                                <a class="dropdown-item" href="#">Another action</a>
-                                <a class="dropdown-item" href="#"
-                                    >Something else here</a
-                                >
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -235,22 +235,21 @@
 <script src="~/js/ticket_pagination.js" asp-append-version="true"></script>
 <script>
     $(function () {
-        @if (ViewBag.SuccessMessage != null)
+        @if (TempData["SuccessMessage"] != null)
         {
             <text>
-                   toastr.success('@ViewBag.SuccessMessage');
+                toastr.success('@TempData["SuccessMessage"]');
             </text>
         }
-        else if (ViewBag.ErrorMessage != null)
+        else if (TempData["ErrorMessage"] != null)
         {
             <text>
-                   toastr.error('@ViewBag.ErrorMessage');
+                toastr.error('@TempData["ErrorMessage"]');
             </text>
         }
-
     });
-
 </script>
+
 <script src="~/js/dist/browser/signalr.js"></script>
 <script src="~/js/dist/browser/signalr.min.js"></script>
 @section Scripts {
@@ -290,7 +289,7 @@
                 const ticketHtml = `
                     <div id="ticketContainer">
                         <div class="d-flex justify-content-between">
-                            <a href="/Ticket/Details/${ticket.id}">
+                            <a href="/Home/Details/${ticket.id}">
                                 <div class="flex-1 ms-3 pt-1">
                                     <h6 class="text-uppercase fw-bold mb-1">
                                         <span style="color: #007bff; text-decoration: none; font-weight: bold;">

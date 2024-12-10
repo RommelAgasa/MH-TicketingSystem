@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MH_TicketingSystem.Controllers
 {
+
+	/// <summary>
+	/// Use in managing the priority level of the ticket that is use in creating the ticket
+	/// </summary>
 	public class PriorityLevelController : Controller
 	{
 		private readonly ApplicationDbContext _context;
@@ -13,11 +17,16 @@ namespace MH_TicketingSystem.Controllers
 			_context = context;
 		}
 
+
 		public IActionResult Index()
 		{
 			return View();
 		}
 
+		/// <summary>
+		///  Get all priority levels
+		/// </summary>
+		/// <returns> JSON containing the success flag and the priority level data</returns>
 		[HttpGet]
 		public JsonResult GetAllPriorityLevels()
 		{
@@ -25,6 +34,12 @@ namespace MH_TicketingSystem.Controllers
 			return Json(new { success = true, pLevels });
 		}
 
+
+		/// <summary>
+		/// Creating new priority level
+		/// </summary>
+		/// <param name="priorityLevel"></param>
+		/// <returns>Json Object</returns>
 		[HttpPost]
 		public async Task<JsonResult> Create(PriorityLevel priorityLevel)
 		{
@@ -61,6 +76,12 @@ namespace MH_TicketingSystem.Controllers
             }
 		}
 
+
+		/// <summary>
+		/// Use in retrieving data to edit
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
 		[HttpGet]
 		public async Task<JsonResult> Edit(int id)
 		{
@@ -72,6 +93,11 @@ namespace MH_TicketingSystem.Controllers
 			return Json(new { success = true, pLevel });
 		}
 
+		/// <summary>
+		/// Update the priority level
+		/// </summary>
+		/// <param name="priorityLevel"></param>
+		/// <returns></returns>
 		[HttpPost]
 		public JsonResult Update(PriorityLevel priorityLevel)
 		{
@@ -92,7 +118,13 @@ namespace MH_TicketingSystem.Controllers
 			}
 		}
 
-		[HttpPost]
+
+        /// <summary>
+        /// Update the priority level
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
 		public JsonResult Delete(int id)
 		{
 			var pLevel = _context.PriorityLevels.Find(id);

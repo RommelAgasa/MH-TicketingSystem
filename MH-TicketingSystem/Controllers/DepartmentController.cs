@@ -1,5 +1,6 @@
 ﻿using MH_TicketingSystem.Models;
 using MH_TicketingSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -7,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MH_TicketingSystem.Controllers
 {
+    /// <summary>
+    /// This controller use in managing department
+    /// </summary>
+    [Authorize]
     public class DepartmentController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,6 +23,12 @@ namespace MH_TicketingSystem.Controllers
             _roleManager = roleManager;
         }
 
+
+        /// <summary>
+        /// Use loading the department page
+        /// Get all role using the _roleManager - use in displaying the UI element select
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
             ViewBag.Roles = await _roleManager.Roles
@@ -30,7 +41,10 @@ namespace MH_TicketingSystem.Controllers
         }
 
 
-        // Get all departments
+        /// <summary>
+        /// Get all departments
+        /// </summary>
+        /// <returns>JSON List of Departments</returns>
         [HttpGet]
         public JsonResult GetAllDepartments()
         {
@@ -59,7 +73,11 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
-        // Get department for editing
+        /// <summary>
+        /// Get department for editing
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         public JsonResult Edit(int id)
         {
@@ -71,7 +89,11 @@ namespace MH_TicketingSystem.Controllers
             return Json(new { success = true, department });
         }
 
-        // Update department details
+        /// <summary>
+        /// Update department details
+        /// </summary>
+        /// <param name="department"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult Update(Department department)
         {
@@ -92,7 +114,11 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
-        // Delete a department
+        /// <summary>
+        /// Delete a department
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult Delete(int id)
         {

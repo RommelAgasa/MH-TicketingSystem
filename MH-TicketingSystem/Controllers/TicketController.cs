@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MH_TicketingSystem.Controllers
 {
+
+    /// <summary>
+    /// This controller use to manage the ticket status and updating the data
+    /// </summary>
     public class TicketController : Controller
     {
 
@@ -19,11 +23,25 @@ namespace MH_TicketingSystem.Controllers
             _userManager = userManager;
         }
 
+
+        /// <summary>
+        /// Use in loading the ticket page in the dashboard by the user, it gets the 
+        /// ticket base on the ticketType click by the user, but first loading the
+        /// ticket page it gets all the tickets
+        /// 
+        /// It also use in redirecting the page after the user close the ticket or reopen
+        /// </summary>
+        /// <param name="ticketType"></param>
+        /// <param name="messageAlert"></param>
+        /// <param name="errorCount"></param>
+        /// <returns></returns>
+
         public IActionResult Index(string ticketType = "all", string messageAlert = "", int errorCount = 0)
         {
             List<TicketPriorityLevelViewModel> tickets = ticketType switch
             {
                 "open" => GetAllTickets().Where(t => t.TicketStatus == (int)TicketStatus.Open).ToList(),
+                "pending" => GetAllTickets().Where(t => t.TicketStatus == (int)TicketStatus.Pending).ToList(),
                 "closed" => GetAllTickets().Where(t => t.TicketStatus == (int)TicketStatus.Closed).ToList(),
                 _ => GetAllTickets()
             };
@@ -31,17 +49,20 @@ namespace MH_TicketingSystem.Controllers
             // This is use in opening and closing the ticket alert message
             if (!string.IsNullOrEmpty(messageAlert) && errorCount == 0)
             {
-                ViewBag.SuccessMessage = messageAlert;
+                TempData["SuccessMessage"] = messageAlert;
             }
             else if (!string.IsNullOrEmpty(messageAlert) && errorCount > 0)
             {
-                ViewBag.ErrorMessage = messageAlert;
+                TempData["ErrorMessage"] = messageAlert;
             }
 
             return View(tickets);
         }
 
-
+        /// <summary>
+        /// Get all Tickets
+        /// </summary>
+        /// <returns></returns>
         private List<TicketPriorityLevelViewModel> GetAllTickets()
         {
             var tickets = (from t in _context.Tickets
@@ -70,6 +91,12 @@ namespace MH_TicketingSystem.Controllers
             return tickets;
         }
 
+
+        /// <summary>
+        /// Get the details of the specific ticket
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Details(int id)
         {
             // Get the details of the ticket
@@ -126,7 +153,11 @@ namespace MH_TicketingSystem.Controllers
             return View(userTicketConvo);
         }
 
-        // Update ticket - User who open and the date opened
+        /// <summary>
+        /// Update ticket - User who open and the date opened
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task UpdateTicketOpenBy(int id) // Change async void to async Task
         {
             var ticket = await _context.Tickets.FindAsync(id); // Use FindAsync for async operation
@@ -142,6 +173,12 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Close Ticket
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> CloseTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -174,7 +211,11 @@ namespace MH_TicketingSystem.Controllers
             return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
 
-
+        /// <summary>
+        ///  Make the ticket status pending
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> PendingTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -206,6 +247,12 @@ namespace MH_TicketingSystem.Controllers
             return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
 
+
+        /// <summary>
+        /// Reopen the ticket
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> ReOpenTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -240,7 +287,12 @@ namespace MH_TicketingSystem.Controllers
         }
 
 
-
+        /// <summary>
+        /// Use in downloading the file
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult DownloadFile(string filePath, string fileName)
         {

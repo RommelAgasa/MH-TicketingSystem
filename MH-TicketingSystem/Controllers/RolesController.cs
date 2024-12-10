@@ -8,6 +8,10 @@ using MH_TicketingSystem.Services;
 
 namespace MH_TicketingSystem.Controllers
 {
+
+    /// <summary>
+    /// This controller use in managing roles of each department - CRUD functionality
+    /// </summary>
     public class RolesController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -24,6 +28,11 @@ namespace MH_TicketingSystem.Controllers
             return View();
         }
 
+
+        /// <summary>
+        ///  Use in getting all roles
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public JsonResult GetRoles()
         {
@@ -31,6 +40,11 @@ namespace MH_TicketingSystem.Controllers
             return Json(roles);
         }
 
+        /// <summary>
+        /// Use in creating new role
+        /// </summary>
+        /// <param name="roleName"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> Create(string roleName)
         {
@@ -61,6 +75,11 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
+        /// <summary>
+        /// Use in getting specific role to be edit
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<JsonResult> Edit(string id)
         {
@@ -72,6 +91,11 @@ namespace MH_TicketingSystem.Controllers
             return Json(new { success = true, role });
         }
 
+        /// <summary>
+        /// Use in updating specific role
+        /// </summary>
+        /// <param name="role"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> Update(IdentityRole role)
         {
@@ -116,6 +140,11 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
+        /// <summary>
+        /// Use in deleting specific role
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> Delete(string id)
         {

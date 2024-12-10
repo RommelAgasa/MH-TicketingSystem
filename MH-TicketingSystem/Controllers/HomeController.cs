@@ -16,6 +16,11 @@ using System.Net.Sockets;
 
 namespace MH_TicketingSystem.Controllers
 {
+
+    /// <summary>
+    /// This controller use in managing of creating, closing, reopening the ticket by the use
+    /// Also this controller use real-time updating the dashboard after changing status of the ticket
+    /// </summary>
     [Authorize]
     public class HomeController : Controller
     {
@@ -35,6 +40,18 @@ namespace MH_TicketingSystem.Controllers
             _hubContext = hubContext;
         }
 
+        /// <summary>
+        /// Use in loading the home page by the user, it gets the 
+        /// ticket base on the ticketType click by the user, but first loading the
+        /// home page it get all tickets
+        /// 
+        /// It also use in redirecting the page after the user close the ticket or reopen
+        /// </summary>
+        /// <param name="ticketType"></param>
+        /// <param name="messageAlert"></param>
+        /// <param name="errorCount"></param>
+        /// <returns></returns>
+
         public async Task<IActionResult> Index(string ticketType = "all", string messageAlert = "",
                     int errorCount = 0)
         {
@@ -47,12 +64,17 @@ namespace MH_TicketingSystem.Controllers
             // Assuming GetAllTickets() returns an IEnumerable<Ticket>
             var allTickets = await GetAllTickets();
 
+            var today = DateTime.Today; // E.g., 2024-12-05 00:00:00
+            var tomorrow = today.AddDays(1); // E.g., 2024-12-06 00:00:00
+
             if (User.IsInRole("Admin"))
             {
                 // Filter tickets based on status only (if admin)
                 tickets = ticketType switch
                 {
+                    "today" => allTickets.Where(t => t.DateTicket >= today && t.DateTicket < tomorrow).ToList(),
                     "open" => allTickets.Where(t => t.TicketStatus == (int)TicketStatus.Open).ToList(),
+                    "pending" => allTickets.Where(t => t.TicketStatus == (int)TicketStatus.Pending).ToList(),
                     "closed" => allTickets.Where(t => t.TicketStatus == (int)TicketStatus.Closed).ToList(),
                     _ => allTickets.ToList() // Return all tickets for any other type
                 };
@@ -62,7 +84,9 @@ namespace MH_TicketingSystem.Controllers
                 // Filter tickets based on user and status (if not admin)
                 tickets = ticketType switch
                 {
+                    "today" => allTickets.Where(t => t.TicketUserId == user.Id && (t.DateTicket >= today && t.DateTicket < tomorrow)).ToList(),
                     "open" => allTickets.Where(t => t.TicketUserId == user.Id && t.TicketStatus == (int)TicketStatus.Open).ToList(),
+                    "pending" => allTickets.Where(t => t.TicketUserId == user.Id && t.TicketStatus == (int)TicketStatus.Pending).ToList(),
                     "closed" => allTickets.Where(t => t.TicketUserId == user.Id && t.TicketStatus == (int)TicketStatus.Closed).ToList(),
                     _ => allTickets.Where(t => t.TicketUserId == user.Id).ToList() // Return user's tickets only
                 };
@@ -71,17 +95,21 @@ namespace MH_TicketingSystem.Controllers
             // This is use in opening and closing the ticket alert message
             if (!string.IsNullOrEmpty(messageAlert) && errorCount == 0)
             {
-                ViewBag.SuccessMessage = messageAlert;
+                TempData["SuccessMessage"] = messageAlert;
             }
             else if (!string.IsNullOrEmpty(messageAlert) && errorCount > 0)
             {
-                ViewBag.ErrorMessage = messageAlert;
+                TempData["ErrorMessage"] = messageAlert;
             }
 
             return View(tickets);
 
         }
 
+        /// <summary>
+        /// Get All Tickets
+        /// </summary>
+        /// <returns> all tickets </returns>
         public async Task<List<TicketPriorityLevelViewModel>> GetAllTickets()
         {
             var tickets = await (from t in _context.Tickets
@@ -110,26 +138,41 @@ namespace MH_TicketingSystem.Controllers
             return tickets;
         }
 
+        /// <summary>
+        ///  Use in Creating form UI in creating ticket
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             ViewBag.PriorityLevel = GetPriorityLevels();
-
-            // Get UserID the one that is login
-            var user = await _userManager.GetUserAsync(User);
-            int ticketCount = (from t in _context.Tickets
-                               where t.UserId == user.Id
-                               select t.UserId).Count();
-
-            ticketCount++;
-            ViewBag.TicketNumber = ticketCount;
+            ViewBag.TicketNumber = GetTicketNumber();
             return View();
         }
 
+        public int GetTicketNumber()
+        {
+             // Get UserID the one that is login
+            var user = _userManager.GetUserId(User);
+            int ticketCount = (from t in _context.Tickets
+                               where t.UserId == user
+                               select t.UserId).Count();
+            return ticketCount++;
+        }
+
+
+
+        /// <summary>
+        /// Use in posting the ticket / ticket creation
+        /// </summary>
+        /// <param name="ticket"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Create(Tickets ticket, IFormFile file = null)
         {
             ViewBag.PriorityLevel = GetPriorityLevels();
+            ViewBag.TicketNumber = GetTicketNumber();
             string messageAlert = "";
             int errorCount = 0;
             if (ModelState.IsValid)
@@ -147,6 +190,7 @@ namespace MH_TicketingSystem.Controllers
                         Directory.CreateDirectory(uploadsFolder);
                     }
 
+                    var holdFileNameTemp = Path.GetFileName(file.FileName);
                     fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
                     fileSavePath = Path.Combine(uploadsFolder, fileName);
 
@@ -158,7 +202,7 @@ namespace MH_TicketingSystem.Controllers
 
                     // Save the file Info to Ticket Model
                     ticket.FilePath = fileSavePath;
-                    ticket.FileName = fileName;
+                    ticket.FileName = holdFileNameTemp;
                 }
 
                 // Get UserID the one that is login
@@ -208,7 +252,11 @@ namespace MH_TicketingSystem.Controllers
             return View();
         }
 
-
+        /// <summary>
+        /// Getting the details of specific ticket
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Details(int id)
         {
             // Get the details of the ticket
@@ -259,13 +307,19 @@ namespace MH_TicketingSystem.Controllers
             // Only the admin or the I.T
             if (User.IsInRole("Admin"))
             {
-                await UpdateTicketOpenBy(id); // Await the method
+                // If the admin/I.T open the ticket 
+                // update the database
+                await UpdateTicketOpenBy(id);
             }
 
             return View(userTicketConvo);
         }
 
-        // Update ticket - User who open and the date opened
+        /// <summary>
+        /// Update ticket - User who open and the date opened
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task UpdateTicketOpenBy(int id)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -281,6 +335,12 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Close the ticket -- update the database
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> CloseTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -321,6 +381,11 @@ namespace MH_TicketingSystem.Controllers
         }
 
 
+        /// <summary>
+        /// Make the ticket pending -- only admin role can make the ticket pending
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> PendingTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -352,6 +417,12 @@ namespace MH_TicketingSystem.Controllers
             return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
 
+
+        /// <summary>
+        /// Re-open the ticket
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> ReOpenTicket(int id)
         {
             Tickets ticket = await _context.Tickets.FindAsync(id);
@@ -390,7 +461,11 @@ namespace MH_TicketingSystem.Controllers
             return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
         }
 
-
+        /// <summary>
+        ///  Use in searching ticket
+        /// </summary>
+        /// <param name="search"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Search(string? search)
         {
             List<TicketPriorityLevelViewModel> searchTickets;
@@ -434,6 +509,11 @@ namespace MH_TicketingSystem.Controllers
         }
 
 
+
+        /// <summary>
+        /// Use by the get Create function to load the priority level in select element in chtml
+        /// </summary>
+        /// <returns></returns>
         [NonAction]
         public List<SelectListItem> GetPriorityLevels()
         {

@@ -2,6 +2,10 @@
 
 namespace MH_TicketingSystem.Controllers
 {
+
+	/// <summary>
+	/// This controller only use in uploading file
+	/// </summary>
 	public class FileUploadController : Controller
 	{
 		public IActionResult Index()
@@ -9,6 +13,11 @@ namespace MH_TicketingSystem.Controllers
 			return View();
 		}
 
+		/// <summary>
+		/// Use in uploading the file in this project folder
+		/// and saving the file path and name in database
+		/// </summary>
+		/// <returns></returns>
 		[HttpPost("FileUpload")]
 		public async Task<IActionResult> FileUpload()
 		{

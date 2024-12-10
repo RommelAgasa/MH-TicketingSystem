@@ -8,6 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MH_TicketingSystem.Controllers
 {
+
+    /// <summary>
+    /// This controller manage the dashboard UI - Getting the updated 
+    /// number of tickets depends on the status 
+    /// Get all tickets
+    /// </summary>
     //[AccessDeniedAuthorize("Admin")]
     public class DashboardController : Controller
     {
@@ -21,6 +27,10 @@ namespace MH_TicketingSystem.Controllers
             _hubContext = hubContext;
         }
 
+        /// <summary>
+        /// Load the dashboard page ang get the stat of the tickets
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
             // Count Ticket
@@ -45,11 +55,16 @@ namespace MH_TicketingSystem.Controllers
             return View(todayTickets);
         }
 
+        /// <summary>
+        /// Get the today's tickets -- use also in dashboard page
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<TicketPriorityLevelViewModel>> GetTodayTickets()
         {
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
 
+            // Get all today's ticket
             var tickets = await (from t in _context.Tickets
                                  join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
                                  where t.DateTicket >= today && t.DateTicket < tomorrow

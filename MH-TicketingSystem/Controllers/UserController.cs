@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MH_TicketingSystem.Controllers
 {
+    /// <summary>
+    /// This controller use in managing the user - deleting and updating the data information
+    /// </summary>
     public class UserController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,12 +21,20 @@ namespace MH_TicketingSystem.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// Use in loading the users in users page
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Index()
         {
             var users = GetUsers();
             return View(users ?? new List<UserDepartmentViewModel>());
         }
 
+        /// <summary>
+        /// Get all users
+        /// </summary>
+        /// <returns></returns>
         public List<UserDepartmentViewModel> GetUsers()
         {
             var users =  (from ur in _context.UserRoles
@@ -42,6 +53,12 @@ namespace MH_TicketingSystem.Controllers
             return users;
         }
 
+
+        /// <summary>
+        ///  Edit the user data
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Edit(string id) 
         {
@@ -57,6 +74,13 @@ namespace MH_TicketingSystem.Controllers
             return View(userEdit);
         }
 
+
+        /// <summary>
+        /// Submitting the edited data of the user
+        /// </summary>
+        /// <param name="UserId"></param>
+        /// <param name="userModel"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string UserId, UserDepartmentViewModel userModel)
@@ -162,6 +186,11 @@ namespace MH_TicketingSystem.Controllers
         }
 
 
+        /// <summary>
+        ///  Deleting specific user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> Delete(string id)
         {
@@ -196,7 +225,10 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
-        // Get departments data, used in select option in views
+        /// <summary>
+        /// Get departments data, used in select option in views
+        /// </summary>
+        /// <returns></returns>
         [NonAction]
         private List<SelectListItem> GetDepartments()
         {

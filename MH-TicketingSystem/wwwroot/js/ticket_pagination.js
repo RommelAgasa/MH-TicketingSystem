@@ -1,5 +1,5 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
-    const itemsPerPage = 10; // Number of items to display per page
+    const itemsPerPage = 5; // Number of items to display per page
     const ticketsContainer = document.getElementById('tickets');
     // Collect the ticket card elements
     const tickets = Array.from(ticketsContainer.querySelectorAll('#ticketContainer'));
@@ -24,22 +24,47 @@
     function createPagination() {
         const prevButton = pagination.querySelector(".page-item:first-child"); // Previous button
         const nextButton = pagination.querySelector(".page-item:last-child"); // Next button
+        const maxVisiblePages = 10; // Limit of visible pages
 
-        // Remove old page numbers
-        pagination.querySelectorAll(".page-item.page-number").forEach((item) => item.remove());
+        function renderPageNumbers(currentPage) {
+            // Remove old page numbers
+            pagination.querySelectorAll(".page-item.page-number").forEach((item) => item.remove());
 
-        // Create new page numbers
-        for (let i = 1; i <= totalPages; i++) {
-            const li = document.createElement("li");
-            li.className = "page-item page-number";
-            li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-            li.addEventListener("click", function (e) {
-                e.preventDefault();
-                showPage(i);
-            });
+            const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-            // Insert before the Next button
-            pagination.insertBefore(li, nextButton);
+            // Adjust startPage if endPage is near the total
+            const adjustedStartPage = Math.max(1, endPage - maxVisiblePages + 1);
+
+            // Create new page numbers
+            for (let i = adjustedStartPage; i <= endPage; i++) {
+                const li = document.createElement("li");
+                li.className = "page-item page-number" + (i === currentPage ? " active" : "");
+                li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                li.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    showPage(i);
+                    renderPageNumbers(i);
+                });
+
+                // Insert before the Next button
+                pagination.insertBefore(li, nextButton);
+            }
+
+            // Add ellipses if needed
+            if (startPage > 1) {
+                const li = document.createElement("li");
+                li.className = "page-item page-number";
+                li.innerHTML = `<span class="page-link">...</span>`;
+                pagination.insertBefore(li, pagination.querySelector(".page-item.page-number"));
+            }
+
+            if (endPage < totalPages) {
+                const li = document.createElement("li");
+                li.className = "page-item page-number";
+                li.innerHTML = `<span class="page-link">...</span>`;
+                pagination.insertBefore(li, nextButton);
+            }
         }
 
         // Add event listeners for Previous and Next buttons
@@ -48,6 +73,7 @@
             const currentPage = getActivePage();
             if (currentPage > 1) {
                 showPage(currentPage - 1);
+                renderPageNumbers(currentPage - 1);
             }
         });
 
@@ -56,8 +82,12 @@
             const currentPage = getActivePage();
             if (currentPage < totalPages) {
                 showPage(currentPage + 1);
+                renderPageNumbers(currentPage + 1);
             }
         });
+
+        // Initial rendering of page numbers
+        renderPageNumbers(1);
     }
 
     function getActivePage() {

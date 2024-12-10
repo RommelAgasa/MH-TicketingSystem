@@ -11,7 +11,7 @@
             <div class="col-md-10">
                 <div class="card p-2">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3>New Ticket: @ViewBag.TicketNumber</h3>
+                        <h3>New Ticket: #@ViewBag.TicketNumber</h3>
                     </div>
                     <div class="card-body">
                         <form enctype="multipart/form-data" asp-controller="Home" asp-action="Create">
@@ -40,8 +40,9 @@
                                 <label asp-for="SLADeadline" class="form-label">Service Level Agreements Deadline</label>
                                 @Html.EditorFor(m => m.SLADeadline, new { htmlAttributes = new { @class = "form-control", type = "date" } })
                             </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                            <div class="form-group d-flex">
+                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                                <a asp-controller="Home" asp-action="Index" type="button" class="btn btn-black btn-sm mx-2" disabled>Cancel</a>
                             </div>
                         </form>
                     </div>

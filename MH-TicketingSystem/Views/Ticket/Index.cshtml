@@ -36,19 +36,25 @@
                                     <a asp-controller="Ticket" asp-action="Index"
                                        asp-route-ticketType="all"
                                        class="nav-link @((ticketType == "all" || string.IsNullOrEmpty(ticketType)) ? "active" : "")"
-                                       aria-selected="true">All</a>
+                                       aria-selected="@((ticketType == "all" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">All</a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-controller="Ticket" asp-action="Index"
                                        asp-route-ticketType="open"
                                        class="nav-link @((ticketType == "open") ? "active" : "")"
-                                       aria-selected="false">Open</a>
+                                       aria-selected="@((ticketType == "open" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Open</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Ticket" asp-action="Index"
+                                       asp-route-ticketType="pending"
+                                       class="nav-link @((ticketType == "pending") ? "active" : "")"
+                                       aria-selected="@((ticketType == "pending" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Pending</a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-controller="Ticket" asp-action="Index"
                                        asp-route-ticketType="closed"
                                        class="nav-link @((ticketType == "closed") ? "active" : "")"
-                                       aria-selected="false">Closed</a>
+                                       aria-selected="@((ticketType == "closed" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Closed</a>
                                 </li>
                             </ul>
                         </div>
@@ -141,19 +147,19 @@
 <script src="~/js/ticket_pagination.js"></script>
 <script>
     $(function () {
-    @if (ViewBag.SuccessMessage != null)
-    {
-        <text>
-                   toastr.success('@ViewBag.SuccessMessage');
-        </text>
-    }
-    else if (ViewBag.ErrorMessage != null)
-    {
-        <text>
-                   toastr.error('@ViewBag.ErrorMessage');
-        </text>
-    }
-        });
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                 toastr.success('@TempData["SuccessMessage"]');
+            </text>
+        }
+        else if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                 toastr.error('@TempData["ErrorMessage"]');
+            </text>
+        }
+    });
 </script>
 
 <script>
