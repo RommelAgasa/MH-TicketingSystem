@@ -10,7 +10,7 @@ namespace MH_TicketingSystem.Hubs
             await Clients.All.SendAsync("UpdateMetric", metric, value);
         }
 
-        public async Task NewTicketAdded(TicketPriorityLevelViewModel ticket,
+        public async Task NewTicketAdded(TicketViewModel ticket,
                 string ticketStatus, string priorityLevelColor)
         {
             await Clients.All.SendAsync("ReceiveNewTicket", ticket, ticketStatus, priorityLevelColor);

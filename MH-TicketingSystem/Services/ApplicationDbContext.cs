@@ -31,7 +31,6 @@ namespace MH_TicketingSystem.Services
             base.OnModelCreating(modelBuilder);
 
             // Configure the relationship 
-
             // Department Table
             modelBuilder.Entity<Department>()
                 .HasOne(d => d.Role)

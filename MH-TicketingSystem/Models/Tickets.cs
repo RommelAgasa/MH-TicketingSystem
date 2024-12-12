@@ -8,8 +8,8 @@ namespace MH_TicketingSystem.Models
     public enum TicketStatus
     {
         Open,
+        Pending,
         Closed,
-        Pending
     }
 
     public class Tickets
@@ -50,7 +50,7 @@ namespace MH_TicketingSystem.Models
         [ValidateNever]
         public string? Resolution { get; set; } // Storing how the ticket was resolved helps with future troubleshooting or knowledge base creation.
 
-        public DateTime? SLADeadline { get; set; } // when a ticket should be resolved based on service level agreements.
+        public DateTime SLADeadline { get; set; } // when a ticket should be resolved based on service level agreements.
 
         // Foreign Keys
         [ValidateNever]

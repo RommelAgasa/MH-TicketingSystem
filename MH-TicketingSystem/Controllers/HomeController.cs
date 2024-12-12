@@ -56,7 +56,7 @@ namespace MH_TicketingSystem.Controllers
                     int errorCount = 0)
         {
 
-            List<TicketPriorityLevelViewModel> tickets = null; // stored tickets
+            List<TicketViewModel> tickets = null; // stored tickets
                                                                // Get UserID the one that is login
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return View();
@@ -110,12 +110,12 @@ namespace MH_TicketingSystem.Controllers
         /// Get All Tickets
         /// </summary>
         /// <returns> all tickets </returns>
-        public async Task<List<TicketPriorityLevelViewModel>> GetAllTickets()
+        public async Task<List<TicketViewModel>> GetAllTickets()
         {
             var tickets = await (from t in _context.Tickets
                                  join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
-                                 orderby t.DateTicket descending
-                                 select new TicketPriorityLevelViewModel
+                                 orderby t.TicketStatus ascending, t.DateTicket descending
+                                 select new TicketViewModel
                                  {
                                      TicketUserId = t.UserId,
                                      TicketId = t.Id,
@@ -260,13 +260,13 @@ namespace MH_TicketingSystem.Controllers
         public async Task<IActionResult> Details(int id)
         {
             // Get the details of the ticket
-            ViewBag.Ticket = await _context.Tickets.FindAsync(id);
+            TicketViewModel ticket = await GetTicketDetails(id);
 
             // Get the department -- this is use in UI
             if (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value == "Admin")
             {
                 // Get the Department Name the one who made the ticket
-                ViewBag.DepartmentName = await (from t in _context.Tickets
+                TempData["DepartmentName"] = await (from t in _context.Tickets
                                             join u in _context.Users on t.UserId equals u.Id
                                             join ur in _context.UserRoles on u.Id equals ur.UserId
                                             join r in _context.Roles on ur.RoleId equals r.Id
@@ -278,7 +278,7 @@ namespace MH_TicketingSystem.Controllers
             {
                 // The one who made the ticket will only show the 
                 // Department who is admin of the system
-                ViewBag.DepartmentName = await (from r in _context.Roles
+                TempData["DepartmentName"] = await (from r in _context.Roles
                                           join d in _context.Departments on r.Id equals d.RoleId
                                           where r.Name == "Admin"
                                           select d.DepartmentName
@@ -305,15 +305,60 @@ namespace MH_TicketingSystem.Controllers
                                          }).ToListAsync();
 
             // Only the admin or the I.T
-            if (User.IsInRole("Admin"))
+            if (User.IsInRole("Admin") && ticket.OpenBy != null)
             {
                 // If the admin/I.T open the ticket 
                 // update the database
                 await UpdateTicketOpenBy(id);
             }
 
-            return View(userTicketConvo);
+            TicketDetailsViewModel ticketDetails = new TicketDetailsViewModel
+            {
+                Ticket = ticket,
+                TicketConversation = userTicketConvo,
+            };
+
+            return View(ticketDetails);
         }
+
+        private async Task<TicketViewModel> GetTicketDetails(int id)
+        {
+            var ticket = await (from t in _context.Tickets
+                                join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
+                                join u in _context.Users on t.UserId equals u.Id into userJoin
+                                from ticketUser in userJoin.DefaultIfEmpty()
+                                join openUser in _context.Users on t.OpenBy equals openUser.Id into openUserJoin
+                                from openUser in openUserJoin.DefaultIfEmpty()
+                                join closeUser in _context.Users on t.CloseBy equals closeUser.Id into closeUserJoin
+                                from closeUser in closeUserJoin.DefaultIfEmpty()
+                                where t.Id == id
+                                select new TicketViewModel
+                                {
+                                    TicketUserId = t.UserId,
+                                    TicketId = t.Id,
+                                    TicketNumber = t.TicketNumber,
+                                    Subject = t.Subject,
+                                    Description = t.Description,
+                                    OpenBy = openUser != null ? openUser.UserName : null,
+                                    OpenDateTime = t.DateOpen,
+                                    ClosedBy = closeUser != null ? closeUser.UserName : null,
+                                    ClosedDateTime = t.DateClose,
+                                    FilePath = t.FilePath,
+                                    FileName = t.FileName,
+                                    DateTicket = t.DateTicket,
+                                    TicketStatus = t.TicketStatus,
+                                    SLADeadline = t.SLADeadline,
+                                    Resolution = t.Resolution,
+                                    PriorityLevelId = pl.Id,
+                                    PriorityLevelName = pl.PriorityLevelName,
+                                    PriorityLevelColor = pl.PriorityLevelColor,
+                                    TicketBy = ticketUser != null ? ticketUser.UserName : null
+                                }).FirstOrDefaultAsync();
+
+
+            return ticket;
+        }
+
 
         /// <summary>
         /// Update ticket - User who open and the date opened
@@ -352,7 +397,6 @@ namespace MH_TicketingSystem.Controllers
                 ticket.TicketStatus = (int)TicketStatus.Closed;
                 ticket.CloseBy = user.Id;
                 ticket.DateClose = DateTime.Now;
-
                 try
                 {
                     _context.Update(ticket);
@@ -468,7 +512,7 @@ namespace MH_TicketingSystem.Controllers
         /// <returns></returns>
         public async Task<IActionResult> Search(string? search)
         {
-            List<TicketPriorityLevelViewModel> searchTickets;
+            List<TicketViewModel> searchTickets;
 
             if (string.IsNullOrEmpty(search))
             {
@@ -477,19 +521,38 @@ namespace MH_TicketingSystem.Controllers
             else
             {
                 var searchQuery = search.ToLower();
+                var user = await _userManager.GetUserAsync(User);
+                searchTickets = await GetSearchTicket(searchQuery);
+                if (!User.IsInRole("Admin"))
+                {
+                    searchTickets = searchTickets.Where(t => t.TicketUserId == user.Id).ToList();
+                }
+            }
+            return View(searchTickets);
+        }
 
-                searchTickets = await _context.Tickets
-                    .Include(t => t.PriorityLevel) // Include the PriorityLevel relationship
+        /// <summary>
+        /// Get all tickets base on search query
+        /// </summary>
+        /// <param name="searchQuery"></param>
+        /// <returns></returns>
+        private async Task<List<TicketViewModel>> GetSearchTicket(string searchQuery)
+        {
+            List<TicketViewModel> results = await _context.Tickets
+                    .Include(t => t.PriorityLevel)
+                    .Include(t => t.User)
                     .Where(t => EF.Functions.Like(t.TicketNumber.ToString(), $"%{searchQuery}%")
                                 || EF.Functions.Like(t.Subject, $"%{searchQuery}%")
-                                || EF.Functions.Like(t.Description, $"%{searchQuery}%"))
-                    .Select(t => new TicketPriorityLevelViewModel
+                                || EF.Functions.Like(t.Description, $"%{searchQuery}%")
+                                || EF.Functions.Like(t.User.UserName, $"%{searchQuery}%"))
+                    .Select(t => new TicketViewModel
                     {
                         TicketUserId = t.UserId,
                         TicketId = t.Id,
                         TicketNumber = t.TicketNumber,
                         Subject = t.Subject,
                         Description = t.Description,
+                        TicketBy = t.User.UserName,
                         FilePath = t.FilePath ?? null,
                         FileName = t.FileName ?? null,
                         DateTicket = t.DateTicket,
@@ -504,8 +567,8 @@ namespace MH_TicketingSystem.Controllers
                         PriorityLevelColor = t.PriorityLevel.PriorityLevelColor
                     })
                     .ToListAsync();
-            }
-            return View(searchTickets);
+
+            return results;
         }
 
 
@@ -518,6 +581,7 @@ namespace MH_TicketingSystem.Controllers
         public List<SelectListItem> GetPriorityLevels()
         {
             var priorityLevel = _context.PriorityLevels
+                     .Where(pl => pl.IsPriorityLevelActive == true)
                      .Select(pL => new SelectListItem
                      {
                          Text = pL.PriorityLevelName,

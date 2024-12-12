@@ -112,8 +112,8 @@ $('#SavePLevel').on('click', function (){
         });
     }
 })
-
 function EditPLevel(id) {
+
     $.ajax({
         url: `PriorityLevel/Edit?id=${id}`,
         type: 'get',
@@ -169,6 +169,7 @@ function populateFormDataPLevel(data) {
 }
 
 function DeletePLevel(id) {
+
     Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -245,7 +246,6 @@ function ClearDataPLevel() {
     // Clear validation error messages
     $('#ValidationPLevelName, #ValidationPriorityLevelColor, #ValidationPriorityLevelDescription').text('');
 }
-
 
 function ValidatePLevelInput() {
 

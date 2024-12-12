@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity;
 @inject UserManager<IdentityUser> UserManager
-@model IEnumerable<MH_TicketingSystem.Models.TicketPriorityLevelViewModel>
+@model IEnumerable<MH_TicketingSystem.Models.TicketViewModel>
 
 @{
     Layout = "_HomeLayout";
@@ -41,6 +41,7 @@
                     string truncatedDescription = ticket.Description.Length > 50
                     ? ticket.Description.Substring(0, 50) + "..."
                     : ticket.Description;
+                    string pLevelColor = (ticket.TicketStatus == (int)TicketStatus.Closed) ? "success" : ticket.PriorityLevelColor;
                     string formattedDate = ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
                     <div id="ticketContainer">
                         <div class="d-flex justify-content-between">
@@ -50,7 +51,7 @@
                                         <span style="color: #007bff; text-decoration: none; font-weight: bold;">
                                             @ticket.Subject.ToUpper()
                                         </span>
-                                        <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
+                                        <span class="text-@pLevelColor ps-3">@ticket.TicketStatusString</span>
                                     </h6>
                                     <span class="text-muted">
                                         @truncatedDescription
@@ -63,7 +64,7 @@
                                         <i class="fa fa-comments"></i> 1 replies
                                     </small>
                                     <small class="text-muted mr-2">
-                                        <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
+                                        <i class="icon-calendar"></i> SLA Deadline @(((DateTime)ticket.SLADeadline).ToString("dd MMM yyyy"))
                                     </small>
                                 </div>
                             </a>

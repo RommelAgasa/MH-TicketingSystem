@@ -1,13 +1,23 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 @* @model IEnumerable<UserTicketConversation> *@
+@model MH_TicketingSystem.Models.TicketDetailsViewModel;
 
 @{
 	Layout = "_HomeLayout";
 	ViewData["Title"] = "Metro Health Ticketing System";
+	string departmentTicket = TempData["DepartmentName"].ToString();
+	string avatarLetter = departmentTicket.Substring(0, 2).ToUpper();
 	var currentUser = await UserManager.GetUserAsync(User);
 	var currentUserId = currentUser?.Id; // User's unique ID
 	var currentUserName = currentUser?.UserName; // User's username
+
+	// Random color in avatar
+	string[] colors = [ "primary", "success", "danger", "warning", "info", "secondary", "black" ];
+	Random random = new Random();
+	int index = random.Next(colors.Length);
+	string bg = "bg-" + colors[index];
+
 }
 
 <style>
@@ -59,35 +69,35 @@
 		<div class="card-header d-flex justify-content-between align-items-center" id="headingOne"
 			 data-bs-toggle="collapse" data-bs-target="#collapseOne"
 			 aria-expanded="true" aria-controls="collapseOne">
-			<span class="fw-bold fs-5">@ViewBag.Ticket.Subject</span>
+			<span class="fw-bold fs-5">@Model.Ticket.Subject.ToUpper()</span>
 			<span class="icon" style="cursor: pointer">
 				<i class="bi" id="iconCollapseOne"></i>
 			</span>
 		</div>
 		<div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
 			<div class="card-body">
-				<div class="mb-3">
-					<h6 class="text-muted mb-1 fs-6"><strong>Description:</strong></h6>
-					<p class="card-text fs-6">@ViewBag.Ticket.Description</p>
+				<div class="mb-3 d-flex align-items-center">
+					<h6 class="text-muted mb-0 fs-6"><strong>Description:</strong></h6>
+					<p class="card-text fs-6 ms-2">@Model.Ticket.Description</p>
 				</div>
 
 				@if (User.IsInRole("Admin"))
 				{
-					<div class="mb-3">
-						<h6 class="text-muted mb-1 fs-6"><strong>Ticket By:</strong></h6>
-						<p class="card-text fs-6">Internal Security: is_ian</p>
+					<div class="mb-3 d-flex align-items-center">
+						<h6 class="text-muted mb-0 fs-6"><strong>Ticket By:</strong></h6>
+						<p class="card-text fs-6 ms-2">@departmentTicket : @Model.Ticket.TicketBy</p>
 					</div>
 				}
 
-				@if (!string.IsNullOrEmpty(ViewBag.Ticket.FilePath))
+				@if (!string.IsNullOrEmpty(Model.Ticket.FilePath))
 				{
 					<div class="d-flex align-items-center border-top pt-3 m-0">
 						<p class="mb-0 fs-6">
-							<strong class="text-muted fs-6">Uploaded File:</strong> @ViewBag.Ticket.FileName
+							<strong class="text-muted fs-6">Uploaded File:</strong> @Model.Ticket.FileName
 						</p>
 						<div class="m-2">
 							<a href="@Url.Action("DownloadFile", "Ticket",
-						new { filePath = ViewBag.Ticket.FilePath, fileName = ViewBag.Ticket.FileName })"
+						new { filePath = Model.Ticket.FilePath, fileName = Model.Ticket.FileName })"
 							   download class="btn btn-outline-primary btn-sm ml-1">
 								<i class="bi bi-download"></i> Download
 							</a>
@@ -104,44 +114,47 @@
 			<div class="col-12 ">
 				<div class="py-2 px-4 border-bottom">
 					<div class="d-flex align-items-center py-1">
-@* 						<div class="position-relative m-3">
-							<img src="https://bootdey.com/img/Content/avatar/avatar3.png" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
-						</div> *@
-						<div class="flex-grow-1 pl-3">
-							<h3 class="fw-bold fs-5">@ViewBag.DepartmentName</h3>
+						<div class="avatar">
+							<span class="avatar-title rounded-circle border border-white @bg">@avatarLetter</span>
+						</div>
+						<div class="flex-grow-1 pl-3 ml-2 mt-2">
+							<h3 class="fw-bold fs-5">@TempData["DepartmentName"]</h3>
 						</div>
 					</div>
 				</div>
 				<div class="position-relative">
 					<div class="chat-messages p-4" id="messagesList">
-						@foreach (var conversation in Model)
-						{
-							// Check if the message is from the current user or someone else
-							var isCurrentUser = conversation.UserId == currentUserId; // Assuming you have the current user's ID
-							var user = conversation.UserId == currentUserId ? "You" : conversation.Username;
-							<div class="@((isCurrentUser ? "chat-message-right" : "chat-message-left") + " pb-4")">
-								<div>
-									<div class="text-muted small text-nowrap mt-2">
-										@conversation.Timestamp.ToString("HH:mm")
-									</div>
-								</div>
-								<div class="flex-shrink-1 bg-light rounded py-2 px-3 @(isCurrentUser ? "mr-3" : "ml-3")">
-									<div class="font-weight-bold mb-1">
-										@user
-									</div>
-									@conversation.Message
-									@if (!string.IsNullOrEmpty(conversation.FileName) && !string.IsNullOrEmpty(conversation.FilePath))
-									{
-										<div>
-											<a href="@Url.Action("DownloadFile", "Ticket",
-											new { filePath = conversation.FilePath, fileName = conversation.FileName })"
-											target="_blank">
-												<i class="fas fa-arrow-circle-down"></i>
-											@conversation.FileName</a>
+						@if(Model.TicketConversation != null){
+							@foreach (var conversation in Model.TicketConversation)
+							{
+								// Check if the message is from the current user or someone else
+								var isCurrentUser = conversation.UserId == currentUserId; // Assuming you have the current user's ID
+								var user = conversation.UserId == currentUserId ? "You" : conversation.Username;
+								<div class="@((isCurrentUser ? "chat-message-right" : "chat-message-left") + " pb-4")">
+									<div>
+										<div class="text-muted small text-nowrap mt-2">
+											@conversation.Timestamp.ToString("HH:mm")
 										</div>
-									}
+									</div>
+									<div class="flex-shrink-1 bg-light rounded py-2 px-3 @(isCurrentUser ? "mr-3" : "ml-3")">
+										<div class="font-weight-bold mb-1">
+											@user
+										</div>
+										@conversation.Message
+										@if (!string.IsNullOrEmpty(conversation.FileName) && !string.IsNullOrEmpty(conversation.FilePath))
+										{
+											<div>
+												<a href="@Url.Action("DownloadFile", "Ticket",
+											new { filePath = conversation.FilePath, fileName = conversation.FileName })"
+												   target="_blank">
+													<i class="fas fa-arrow-circle-down"></i>
+													@conversation.FileName
+												</a>
+											</div>
+										}
+									</div>
 								</div>
-							</div>
+							}
 						}
 				</div>
 
@@ -149,7 +162,7 @@
 					<div class="form-group py-2">
 						<label for="sendPhoto">Send Photo: </label>
 						<input id="file" type="file" class="form-control-file">
-						<input id="ticketId" type="hidden" value="@ViewBag.Ticket.Id"/>
+						<input id="ticketId" type="hidden" value="@Model.Ticket.TicketId"/>
 					</div>
 					<div class="input-group">
 						<input type="text" class="form-control" placeholder="Type your message" id="messageInput">

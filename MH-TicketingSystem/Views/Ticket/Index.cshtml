@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MH_TicketingSystem.Models.TicketPriorityLevelViewModel>
+﻿@model IEnumerable<MH_TicketingSystem.Models.TicketViewModel>
 @{
     ViewData["Title"] = "Tickets";
     var ticketType = Context.Request.Query["ticketType"];
@@ -19,9 +19,6 @@
                 <a asp-controller="Ticket" asp-action="Index">Tickets</a>
             </li>
         </ul>
-        @*  <div class="ms-md-auto pt-2 py-md-0">
-            <a href="#" class="btn btn-primary btn-round">Add Ticket</a>
-        </div> *@
     </div>
     <div class="row">
         <div class="col-md-12">
@@ -34,27 +31,27 @@
                             <ul class="nav nav-pills nav-secondary nav-pills-no-bd nav-sm">
                                 <li class="nav-item">
                                     <a asp-controller="Ticket" asp-action="Index"
-                                       asp-route-ticketType="all"
-                                       class="nav-link @((ticketType == "all" || string.IsNullOrEmpty(ticketType)) ? "active" : "")"
-                                       aria-selected="@((ticketType == "all" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">All</a>
+                                    asp-route-ticketType="all"
+                                    class="nav-link @((ticketType == "all" || string.IsNullOrEmpty(ticketType)) ? "active" : "")"
+                                    aria-selected="@((ticketType == "all" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">All</a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-controller="Ticket" asp-action="Index"
-                                       asp-route-ticketType="open"
-                                       class="nav-link @((ticketType == "open") ? "active" : "")"
-                                       aria-selected="@((ticketType == "open" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Open</a>
+                                    asp-route-ticketType="open"
+                                    class="nav-link @((ticketType == "open") ? "active" : "")"
+                                    aria-selected="@((ticketType == "open" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Open</a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-controller="Ticket" asp-action="Index"
-                                       asp-route-ticketType="pending"
-                                       class="nav-link @((ticketType == "pending") ? "active" : "")"
-                                       aria-selected="@((ticketType == "pending" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Pending</a>
+                                    asp-route-ticketType="pending"
+                                    class="nav-link @((ticketType == "pending") ? "active" : "")"
+                                    aria-selected="@((ticketType == "pending" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Pending</a>
                                 </li>
                                 <li class="nav-item">
                                     <a asp-controller="Ticket" asp-action="Index"
-                                       asp-route-ticketType="closed"
-                                       class="nav-link @((ticketType == "closed") ? "active" : "")"
-                                       aria-selected="@((ticketType == "closed" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Closed</a>
+                                    asp-route-ticketType="closed"
+                                    class="nav-link @((ticketType == "closed") ? "active" : "")"
+                                    aria-selected="@((ticketType == "closed" || string.IsNullOrEmpty(ticketType)) ? "true" : "false")">Closed</a>
                                 </li>
                             </ul>
                         </div>
@@ -67,6 +64,7 @@
                         ? ticket.Description.Substring(0, 50) + "..."
                         : ticket.Description;
                         string formattedDate = ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                        string pLevelColor = (ticket.TicketStatus == (int)TicketStatus.Closed) ? "success" : ticket.PriorityLevelColor;
                         <div id="ticketContainer">
                             <div class="d-flex justify-content-between">
                                 <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketId">
@@ -75,7 +73,7 @@
                                             <span style="color: #007bff; text-decoration: none; font-weight: bold;">
                                                 @ticket.Subject.ToUpper()
                                             </span>
-                                            <span class="text-@ticket.PriorityLevelColor ps-3">@ticket.TicketStatusString</span>
+                                            <span class="text-@pLevelColor ps-3">@ticket.TicketStatusString</span>
                                         </h6>
                                         <span class="text-muted">
                                             @truncatedDescription
@@ -88,7 +86,7 @@
                                             <i class="fa fa-comments"></i> 1 replies
                                         </small>
                                         <small class="text-muted mr-2">
-                                            <i class="icon-calendar"></i> SLA Deadline @ticket.SLADeadline.ToString("dd MMM yyyy")
+                                            <i class="icon-calendar"></i> SLA Deadline @(((DateTime)ticket.SLADeadline).ToString("dd MMM yyyy"))
                                         </small>
                                     </div>
                                 </a>
@@ -160,6 +158,7 @@
             </text>
         }
     });
+
 </script>
 
 <script>

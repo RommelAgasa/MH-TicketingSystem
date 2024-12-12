@@ -3,6 +3,7 @@ using MH_TicketingSystem.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using MH_TicketingSystem.Hubs;
+using MH_TicketingSystem.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

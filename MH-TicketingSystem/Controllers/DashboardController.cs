@@ -14,7 +14,6 @@ namespace MH_TicketingSystem.Controllers
     /// number of tickets depends on the status 
     /// Get all tickets
     /// </summary>
-    //[AccessDeniedAuthorize("Admin")]
     public class DashboardController : Controller
     {
 
@@ -59,7 +58,7 @@ namespace MH_TicketingSystem.Controllers
         /// Get the today's tickets -- use also in dashboard page
         /// </summary>
         /// <returns></returns>
-        public async Task<List<TicketPriorityLevelViewModel>> GetTodayTickets()
+        public async Task<List<TicketViewModel>> GetTodayTickets()
         {
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
@@ -67,8 +66,9 @@ namespace MH_TicketingSystem.Controllers
             // Get all today's ticket
             var tickets = await (from t in _context.Tickets
                                  join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
-                                 where t.DateTicket >= today && t.DateTicket < tomorrow
-                                 select new TicketPriorityLevelViewModel
+                                 orderby t.TicketStatus ascending, t.DateTicket descending
+                                 where (t.DateTicket >= today && t.DateTicket < tomorrow)
+                                 select new TicketViewModel
                                  {
                                      TicketUserId = t.UserId,
                                      TicketId = t.Id,
