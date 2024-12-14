@@ -54,6 +54,7 @@ namespace MH_TicketingSystem.Controllers
             return View(todayTickets);
         }
 
+
         /// <summary>
         /// Get the today's tickets -- use also in dashboard page
         /// </summary>
@@ -90,5 +91,89 @@ namespace MH_TicketingSystem.Controllers
                                  }).ToListAsync();
             return tickets;
         }
+
+
+        [HttpGet]
+        public IActionResult GetActiveTicketsPerMonth()
+        {
+            // Get data grouped by month
+            var data = Enumerable.Range(1, 12).Select(month => new
+            {
+                Month = month,
+                Count = _context.Tickets
+                    .Where(t => t.DateTicket.Month == month && t.DateTicket.Year == DateTime.Now.Year)
+                    .Count()
+            }).ToList();
+
+            var chartData = new
+            {
+                labels = data.Select(d => new DateTime(1, d.Month, 1).ToString("MMM")), // Month names
+                datasets = new[]
+                {
+                new
+                {
+                    label = "Active Tickets",
+                    borderColor = "#1d7af3",
+                    pointBorderColor = "#FFF",
+                    pointBackgroundColor = "#1d7af3",
+                    pointBorderWidth = 2,
+                    pointHoverRadius = 4,
+                    pointHoverBorderWidth = 1,
+                    pointRadius = 4,
+                    backgroundColor = "transparent",
+                    fill = true,
+                    borderWidth = 2,
+                    data = data.Select(d => d.Count) // Count for each month
+                }
+            }
+            };
+
+            return Json(chartData);
+        }
+
+
+        [HttpGet]
+        public IActionResult GetTicketsByPriority()
+        {
+            // Define Bootstrap color mappings
+            var bootstrapColors = new Dictionary<string, string>
+            {
+                { "primary", "#007bff" },
+                { "secondary", "#6c757d" },
+                { "info", "#17a2b8" },
+                { "success", "#28a745" },
+                { "danger", "#dc3545" },
+                { "warning", "#ffc107" }
+            };
+
+            var data = _context.Tickets
+                .GroupBy(t => new { t.PriorityLevel.PriorityLevelName, t.PriorityLevel.PriorityLevelColor })
+                .Select(g => new
+                {
+                    Priority = g.Key.PriorityLevelName,
+                    Count = g.Count(),
+                    Color = bootstrapColors.ContainsKey(g.Key.PriorityLevelColor)
+                        ? bootstrapColors[g.Key.PriorityLevelColor]
+                        : "#000000" // Default to black if no mapping found
+                })
+                .ToList();
+
+            var chartData = new
+            {
+                labels = data.Select(d => d.Priority).ToArray(),
+                datasets = new[]
+                {
+                    new
+                    {
+                        data = data.Select(d => d.Count).ToArray(),
+                        backgroundColor = data.Select(d => d.Color).ToArray()
+                    }
+                }
+            };
+
+            return Json(chartData);
+        }
+
+
     }
 }

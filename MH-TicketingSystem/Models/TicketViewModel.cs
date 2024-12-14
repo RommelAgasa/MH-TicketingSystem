@@ -22,6 +22,8 @@ namespace MH_TicketingSystem.Models
 
         public string TicketDepartment { get; set; }
 
+        public int TicketDepartmentId { get; set; }
+
         public string? OpenBy { get; set; } = null;
 
         public DateTime? OpenDateTime { get; set; } = null;

@@ -112,29 +112,40 @@ namespace MH_TicketingSystem.Controllers
         /// <returns> all tickets </returns>
         public async Task<List<TicketViewModel>> GetAllTickets()
         {
-            var tickets = await (from t in _context.Tickets
-                                 join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
-                                 orderby t.TicketStatus ascending, t.DateTicket descending
-                                 select new TicketViewModel
-                                 {
-                                     TicketUserId = t.UserId,
-                                     TicketId = t.Id,
-                                     TicketNumber = t.TicketNumber,
-                                     Subject = t.Subject,
-                                     Description = t.Description,
-                                     FilePath = t.FilePath ?? null,
-                                     FileName = t.FileName ?? null,
-                                     DateTicket = t.DateTicket,
-                                     TicketStatus = t.TicketStatus,
-                                     TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
-                                                   t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
-                                                   t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
-                                                   "Unknown",
-                                     SLADeadline = (DateTime)t.SLADeadline,
-                                     PriorityLevelId = pl.Id,
-                                     PriorityLevelName = pl.PriorityLevelName,
-                                     PriorityLevelColor = pl.PriorityLevelColor
-                                 }).ToListAsync();
+            var tickets = (from t in _context.Tickets
+                           join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
+                           join u in _context.Users on t.UserId equals u.Id
+                           join ur in _context.UserRoles on u.Id equals ur.UserId
+                           join r in _context.Roles on ur.RoleId equals r.Id
+                           join d in _context.Departments on r.Id equals d.RoleId
+                           orderby t.TicketStatus ascending, t.DateTicket descending
+                           select new TicketViewModel
+                           {
+                               TicketUserId = t.UserId,
+                               TicketId = t.Id,
+                               TicketNumber = t.TicketNumber,
+                               Subject = t.Subject,
+                               Description = t.Description,
+                               OpenBy = t.OpenedByUser != null ? t.OpenedByUser.UserName : null,
+                               OpenDateTime = t.DateOpen,
+                               ClosedBy = t.ClosedByUser != null ? t.ClosedByUser.UserName : null,
+                               ClosedDateTime = t.DateClose,
+                               FilePath = t.FilePath,
+                               FileName = t.FileName,
+                               DateTicket = t.DateTicket,
+                               TicketStatus = t.TicketStatus,
+                               TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
+                                                                     t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
+                                                                     t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
+                                                                     "Unknown",
+                               SLADeadline = t.SLADeadline,
+                               Resolution = t.Resolution,
+                               PriorityLevelId = t.PriorityLevel.Id,
+                               PriorityLevelName = t.PriorityLevel.PriorityLevelName,
+                               PriorityLevelColor = t.PriorityLevel.PriorityLevelColor,
+                               TicketBy = u.UserName,
+                               TicketDepartment = d.DepartmentName
+                           }).ToList();
             return tickets;
         }
 

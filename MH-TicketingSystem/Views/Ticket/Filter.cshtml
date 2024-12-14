@@ -34,7 +34,7 @@
                         <div class="form-group mb-0 flex-grow-1">
                             <label asp-for="Filter.TicketStatus" class="form-label">Ticket Status</label>
                             <select asp-for="Filter.TicketStatus" class="form-control" id="select1">
-                                <option value="-1" selected>Select</option>
+                                <option value="-1" selected>All</option>
                                 <option value="0">Open</option>
                                 <option value="1">Pending</option>
                                 <option value="2">Closed</option>
@@ -65,7 +65,8 @@
                     </div>
                 </div>
                 <div class="card-body" id="tickets">
-                    @if(Model.Tickets != null){
+                    @if (Model.Tickets != null)
+                    {
                         foreach (var ticket in Model.Tickets)
                         {
                             string truncatedDescription = ticket.Description.Length > 50
@@ -154,18 +155,18 @@
 <script src="~/js/ticket_pagination.js"></script>
 <script>
     $(function () {
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <text>
-                 toastr.success('@TempData["SuccessMessage"]');
-            </text>
-        }
-        else if (TempData["ErrorMessage"] != null)
-        {
-            <text>
-                 toastr.error('@TempData["ErrorMessage"]');
-            </text>
-        }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+                     toastr.success('@TempData["SuccessMessage"]');
+        </text>
+    }
+    else if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+                     toastr.error('@TempData["ErrorMessage"]');
+        </text>
+    }
     });
 
 </script>

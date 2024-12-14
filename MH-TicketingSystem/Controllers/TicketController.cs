@@ -2,8 +2,11 @@
 using MH_TicketingSystem.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MH_TicketingSystem.Controllers
 {
@@ -35,16 +38,12 @@ namespace MH_TicketingSystem.Controllers
         /// <param name="errorCount"></param>
         /// <returns></returns>
 
-        public IActionResult Index(string ticketType = "all", string messageAlert = "", int errorCount = 0)
+        public IActionResult Index(string messageAlert = "", 
+                                    int errorCount = 0)
         {
-            List<TicketViewModel> tickets = ticketType switch
-            {
-                "open" => GetAllTickets().Where(t => t.TicketStatus == (int)TicketStatus.Open).ToList(),
-                "pending" => GetAllTickets().Where(t => t.TicketStatus == (int)TicketStatus.Pending).ToList(),
-                "closed" => GetAllTickets().Where(t => t.TicketStatus == (int)TicketStatus.Closed).ToList(),
-                _ => GetAllTickets()
-            };
-
+            TicketFilterViewModel ticketFilterViewModel = new TicketFilterViewModel();
+            ticketFilterViewModel.Departments = GetDepartments();  // Get All Departments
+            ticketFilterViewModel.Tickets = GetAllTickets();
             // This is use in opening and closing the ticket alert message
             if (!string.IsNullOrEmpty(messageAlert) && errorCount == 0)
             {
@@ -55,8 +54,65 @@ namespace MH_TicketingSystem.Controllers
                 TempData["ErrorMessage"] = messageAlert;
             }
 
-            return View(tickets);
+            return View(ticketFilterViewModel);
         }
+
+        public IActionResult Filter(FilterViewModel filter)
+        {
+            DateTime currentDate = DateTime.Now;
+
+            // Initialize the ViewModel with departments
+            TicketFilterViewModel ticketFilterViewModel = new TicketFilterViewModel
+            {
+                Departments = GetDepartments(),
+                Tickets = new List<TicketViewModel>() // Default empty list
+            };
+
+            // Retrieve all tickets
+            List<TicketViewModel> allTickets = GetAllTickets();
+
+            if (allTickets == null || !allTickets.Any())
+            {
+                return View(ticketFilterViewModel); // No tickets to display
+            }
+
+            // Start filtering
+            var filteredTickets = allTickets.AsQueryable();
+
+            if (filter.StartDate != null)
+            {
+                DateTime endDate = filter.EndDate ?? currentDate;
+                filteredTickets = filteredTickets
+                                    .Where(t => t.DateTicket >= filter.StartDate
+                                             && t.DateTicket <= endDate);
+            }
+
+            if (filter.EndDate != null && filter.StartDate == null)
+            {
+                filteredTickets = filteredTickets
+                                    .Where(t => t.DateTicket <= filter.EndDate);
+            }
+
+            if (filter.DepartmentId != null && filter.DepartmentId != -1)
+            {
+                filteredTickets = filteredTickets
+                                    .Where(t => t.TicketDepartmentId == filter.DepartmentId);
+            }
+
+            if (filter.TicketStatus != null && filter.TicketStatus != -1)
+            {
+                filteredTickets = filteredTickets
+                                    .Where(t => t.TicketStatus == filter.TicketStatus);
+            }
+
+            // Set the filtered tickets in the ViewModel
+            ticketFilterViewModel.Tickets = filteredTickets.ToList();
+
+            // Return the correct ViewModel
+            return View(ticketFilterViewModel);
+        }
+
+
 
         /// <summary>
         /// Get all Tickets
@@ -65,28 +121,40 @@ namespace MH_TicketingSystem.Controllers
         private List<TicketViewModel> GetAllTickets()
         {
             var tickets = (from t in _context.Tickets
-                           join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
-                           orderby t.TicketStatus ascending, t.DateTicket descending
-                           select new TicketViewModel
-                           {
-                               TicketUserId = t.UserId,
-                               TicketId = t.Id,
-                               TicketNumber = t.TicketNumber,
-                               Subject = t.Subject,
-                               Description = t.Description,
-                               FilePath = t.FilePath ?? null,
-                               FileName = t.FileName ?? null,
-                               DateTicket = t.DateTicket,
-                               TicketStatus = t.TicketStatus,
-                               TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
-                                              t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
-                                              t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
-                                              "Unknown",
-                               SLADeadline = (DateTime)t.SLADeadline,
-                               PriorityLevelId = pl.Id,
-                               PriorityLevelName = pl.PriorityLevelName,
-                               PriorityLevelColor = pl.PriorityLevelColor
-                           }).ToList();
+                               join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
+                               join u in _context.Users on t.UserId equals u.Id
+                               join ur in _context.UserRoles on u.Id equals ur.UserId
+                               join r in _context.Roles on ur.RoleId equals r.Id
+                               join d in _context.Departments on r.Id equals d.RoleId
+                               orderby t.TicketStatus ascending, t.DateTicket descending
+                               select new TicketViewModel
+                               {
+                                   TicketUserId = t.UserId,
+                                   TicketId = t.Id,
+                                   TicketNumber = t.TicketNumber,
+                                   Subject = t.Subject,
+                                   Description = t.Description,
+                                   OpenBy = t.OpenedByUser != null ? t.OpenedByUser.UserName : null,
+                                   OpenDateTime = t.DateOpen,
+                                   ClosedBy = t.ClosedByUser != null ? t.ClosedByUser.UserName : null,
+                                   ClosedDateTime = t.DateClose,
+                                   FilePath = t.FilePath,
+                                   FileName = t.FileName,
+                                   DateTicket = t.DateTicket,
+                                   TicketStatus = t.TicketStatus,
+                                   TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
+                                                                         t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
+                                                                         t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
+                                                                         "Unknown",
+                                   SLADeadline = t.SLADeadline,
+                                   Resolution = t.Resolution,
+                                   PriorityLevelId = t.PriorityLevel.Id,
+                                   PriorityLevelName = t.PriorityLevel.PriorityLevelName,
+                                   PriorityLevelColor = t.PriorityLevel.PriorityLevelColor,
+                                   TicketBy = u.UserName,
+                                   TicketDepartmentId = d.Id,
+                                   TicketDepartment = d.DepartmentName
+                               }).ToList();
             return tickets;
         }
 
@@ -257,7 +325,7 @@ namespace MH_TicketingSystem.Controllers
                 messageAlert = "Ticket is already closed.";
             }
 
-            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
+            return RedirectToAction("Index", new {messageAlert, errorCount });
         }
 
         /// <summary>
@@ -293,7 +361,7 @@ namespace MH_TicketingSystem.Controllers
                 messageAlert = "Ticket is already in pending status.";
             }
 
-            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
+            return RedirectToAction("Index", new {messageAlert, errorCount });
         }
 
 
@@ -332,7 +400,7 @@ namespace MH_TicketingSystem.Controllers
                 messageAlert = "You cannot reopen ticket that is in pending status.";
             }
 
-            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
+            return RedirectToAction("Index", new {messageAlert, errorCount });
         }
 
 
@@ -365,5 +433,22 @@ namespace MH_TicketingSystem.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Get departments data, used in select option in views
+        /// </summary>
+        /// <returns></returns>
+        [NonAction]
+        private List<SelectListItem> GetDepartments()
+        {
+            var departments = _context.Departments
+                        .Select(d => new SelectListItem
+                        {
+                            Value = d.Id.ToString(),
+                            Text = d.DepartmentName
+                        }).ToList();
+
+            return departments;
+        }
     }
 }

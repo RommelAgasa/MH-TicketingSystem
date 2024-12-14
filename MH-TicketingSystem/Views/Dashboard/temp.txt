@@ -1,0 +1,278 @@
+﻿@model IEnumerable<MH_TicketingSystem.Models.TicketViewModel>
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-inner">
+
+    <div class="row">
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-primary bubble-shadow-small">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">TOTAL TICKETS</p>
+                                <h4 class="card-title" id="totalTickets">@ViewBag.TicketStat.TotalTickets</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-info bubble-shadow-small">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">NEW TCIKETS</p>
+                                <h4 class="card-title" id="newTickets">@ViewBag.TicketStat.NewTickets</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-success bubble-shadow-small">
+                                <i class="fas fa-lock-open"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">OPEN TICKETS</p>
+                                <h4 class="card-title" id="openTickets">@ViewBag.TicketStat.OpenTickets</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-secondary bubble-shadow-small">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">CLOSED TICKETS</p>
+                                <h4 class="card-title" id="closedTickets">@ViewBag.TicketStat.ClosedTickets</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-head-row">
+                        <div class="card-title">Today's Support Tickets</div>
+                    </div>
+                </div>
+                <div class="card-body" id="tickets">
+                    @foreach (var ticket in Model)
+                    {
+                        string truncatedDescription = ticket.Description.Length > 50
+                        ? ticket.Description.Substring(0, 50) + "..."
+                        : ticket.Description;
+                        string pLevelColor = (ticket.TicketStatus == (int)TicketStatus.Closed) ? "success" : ticket.PriorityLevelColor;
+                        string formattedDate = ticket.DateTicket.ToString("MMM dd, yyyy h:mm tt");
+                        <div id="ticketContainer">
+                            <div class="d-flex justify-content-between">
+                                <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.TicketId">
+                                    <div class="flex-1 ms-3 pt-1">
+                                        <h6 class="text-uppercase fw-bold mb-1">
+                                            <span style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                                @ticket.Subject.ToUpper()
+                                            </span>
+                                            <span class="text-@pLevelColor ps-3">@ticket.TicketStatusString</span>
+                                        </h6>
+                                        <span class="text-muted">
+                                            @truncatedDescription
+                                        </span>
+                                        <br />
+                                        <small class="text-muted mr-2">
+                                            <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fa fa-comments"></i> 1 replies
+                                        </small>
+                                        <small class="text-muted mr-2">
+                                            <i class="icon-calendar"></i> SLA Deadline @(((DateTime)ticket.SLADeadline).ToString("dd MMM yyyy"))
+                                        </small>
+                                    </div>
+                                </a>
+                                <div class="float-end pt-1">
+                                    <small class="text-muted me-1 d-inline-block">#@ticket.TicketNumber</small>
+                                    <div class="dropdown d-inline-block">
+                                        <div class="dropdown">
+                                            <button class="btn btn-icon btn-clean"
+                                                    type="button"
+                                                    onclick="document.getElementById('menu-@ticket.TicketId').classList.toggle('show')">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div id="menu-@ticket.TicketId" class="dropdown-menu">
+                                                <a class="dropdown-item" href="@Url.Action("CloseTicket", "Ticket", new { id = ticket.TicketId })">Close</a>
+                                                <a class="dropdown-item" href="@Url.Action("PendingTicket", "Ticket", new { id = ticket.TicketId })">Pending</a>
+                                                <a class="dropdown-item" href="@Url.Action("ReOpenTicket", "Ticket", new { id = ticket.TicketId })">Re-Open</a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="separator-dashed"></div>
+                        </div>
+                    }
+                </div>
+                <div class="p-3">
+                    <nav aria-label="Ticket page navigation" style="display: @(Model.Count() <= 0? "none" : "block");">
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <span aria-hidden="true">«</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">»</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div> <!--card-->
+        </div>
+
+    </div>
+</div>
+
+<script src="~/js/dist/browser/signalr.js"></script>
+<script src="~/js/dist/browser/signalr.min.js"></script>
+<script src="~/js/ticket_pagination.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/dashboardHub")
+    .build();
+
+    connection.on("UpdateMetric", (metric, value) => {
+        // Update the corresponding card dynamically
+        if (metric === "totalTickets") {
+            document.querySelector("#totalTickets").textContent = value;
+        } else if (metric === "newTickets") {
+            document.querySelector("#newTickets").textContent = value;
+        } else if (metric === "openTickets") {
+            document.querySelector("#openTickets").textContent = value;
+        } else if (metric === "closedTickets") {
+            document.querySelector("#closedTickets").textContent = value;
+        }
+    });
+
+    connection.on("ReceiveNewTicket", (ticket, ticketStatus, priorityLevelColor) => {
+
+        const truncatedDescription = ticket.description.length > 50
+            ? ticket.description.substring(0, 50) + "..."
+            : ticket.description;
+        const formattedDate = new Date(ticket.dateTicket).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+        });
+
+        const ticketHtml = `
+            <div id="ticketContainer">
+                <div class="d-flex justify-content-between">
+                    <a href="/Ticket/Details/${ticket.id}">
+                        <div class="flex-1 ms-3 pt-1">
+                            <h6 class="text-uppercase fw-bold mb-1">
+                                <span style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                    ${ticket.subject.toUpperCase()}
+                                </span>
+                                <span class="text-${priorityLevelColor} ps-3">${ticketStatus}</span>
+                            </h6>
+                            <span class="text-muted">
+                                ${truncatedDescription}
+                            </span>
+                            <br />
+                            <small class="text-muted mr-2">
+                                <i class="fa fa-calendar"></i> ${formattedDate}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fa fa-comments"></i> 1 replies
+                            </small>
+                            <small class="text-muted mr-2">
+                                <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                })}
+                            </small>
+                        </div>
+                    </a>
+                    <div class="float-end pt-1">
+                        <small class="text-muted me-1 d-inline-block">#${ticket.ticketNumber}</small>
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-icon btn-clean"
+                                    type="button"
+                                    onclick="document.getElementById('menu-${ticket.id}').classList.toggle('show')">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div id="menu-${ticket.id}" class="dropdown-menu">
+                                <a class="dropdown-item" href="/Ticket/CloseTicket/${ticket.id}">Close</a>
+                                <a class="dropdown-item" href="/Ticket/PendingTicket/${ticket.id}">Pending</a>
+                                <a class="dropdown-item" href="/Ticket/ReOpenTicket/${ticket.id}">Re-Open</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator-dashed"></div>
+            </div>
+        `;
+
+
+        const container = document.getElementById("tickets");
+        container.insertAdjacentHTML("afterbegin", ticketHtml);
+      });
+
+    connection.start().catch(err => console.error(err));
+
+    connection.onclose(async () => {
+        console.log("Disconnected. Attempting to reconnect...");
+        try {
+            await connection.start();
+            console.log("Reconnected successfully.");
+        } catch (err) {
+            console.error("Failed to reconnect:", err);
+        }
+    });
+
+
+</script>
