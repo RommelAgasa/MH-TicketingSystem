@@ -35,17 +35,14 @@ namespace MH_TicketingSystem.Controllers
             // Count Ticket
             int totalTickets = _context.Tickets.Count();
 
-            var today = DateTime.Today; // E.g., 2024-12-05 00:00:00
-            var tomorrow = today.AddDays(1); // E.g., 2024-12-06 00:00:00
-
-            int newTickets = _context.Tickets.Count(t => t.DateTicket >= today && t.DateTicket < tomorrow);
+            int pendingTickets = _context.Tickets.Count(t => t.TicketStatus == (int)TicketStatus.Pending);
             int openTickets = _context.Tickets.Count(t => t.TicketStatus == (int)TicketStatus.Open);
             int closedTickets = _context.Tickets.Count(t => t.TicketStatus == (int)TicketStatus.Closed);
 
             ViewBag.TicketStat = new
             {
                 TotalTickets = totalTickets,
-                NewTickets = newTickets,
+                PendingTickets = pendingTickets,
                 OpenTickets = openTickets,
                 ClosedTickets = closedTickets
             };
@@ -94,7 +91,7 @@ namespace MH_TicketingSystem.Controllers
 
 
         [HttpGet]
-        public IActionResult GetActiveTicketsPerMonth()
+        public IActionResult GetTicketsPerMonth()
         {
             // Get data grouped by month
             var data = Enumerable.Range(1, 12).Select(month => new
@@ -112,7 +109,7 @@ namespace MH_TicketingSystem.Controllers
                 {
                 new
                 {
-                    label = "Active Tickets",
+                    label = "Tickets",
                     borderColor = "#1d7af3",
                     pointBorderColor = "#FFF",
                     pointBackgroundColor = "#1d7af3",

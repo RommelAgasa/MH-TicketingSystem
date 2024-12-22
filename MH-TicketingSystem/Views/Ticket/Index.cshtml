@@ -91,7 +91,7 @@
                                                 <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
                                             </small>
                                             <small class="text-muted">
-                                                <i class="fa fa-comments"></i> 1 replies
+                                                <i class="fa fa-comments"></i> @ticket.TicketReplies replies
                                             </small>
                                             <small class="text-muted mr-2">
                                                 <i class="icon-calendar"></i> SLA Deadline @(((DateTime)ticket.SLADeadline).ToString("dd MMM yyyy"))
@@ -207,7 +207,7 @@
                                 <i class="fa fa-calendar"></i> ${formattedDate}
                             </small>
                             <small class="text-muted">
-                                <i class="fa fa-comments"></i> 1 replies
+                                <i class="fa fa-comments"></i> 0 replies
                             </small>
                             <small class="text-muted mr-2">
                                 <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {

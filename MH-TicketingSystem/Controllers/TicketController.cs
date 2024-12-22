@@ -121,40 +121,41 @@ namespace MH_TicketingSystem.Controllers
         private List<TicketViewModel> GetAllTickets()
         {
             var tickets = (from t in _context.Tickets
-                               join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
-                               join u in _context.Users on t.UserId equals u.Id
-                               join ur in _context.UserRoles on u.Id equals ur.UserId
-                               join r in _context.Roles on ur.RoleId equals r.Id
-                               join d in _context.Departments on r.Id equals d.RoleId
-                               orderby t.TicketStatus ascending, t.DateTicket descending
-                               select new TicketViewModel
-                               {
-                                   TicketUserId = t.UserId,
-                                   TicketId = t.Id,
-                                   TicketNumber = t.TicketNumber,
-                                   Subject = t.Subject,
-                                   Description = t.Description,
-                                   OpenBy = t.OpenedByUser != null ? t.OpenedByUser.UserName : null,
-                                   OpenDateTime = t.DateOpen,
-                                   ClosedBy = t.ClosedByUser != null ? t.ClosedByUser.UserName : null,
-                                   ClosedDateTime = t.DateClose,
-                                   FilePath = t.FilePath,
-                                   FileName = t.FileName,
-                                   DateTicket = t.DateTicket,
-                                   TicketStatus = t.TicketStatus,
-                                   TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
-                                                                         t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
-                                                                         t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
-                                                                         "Unknown",
-                                   SLADeadline = t.SLADeadline,
-                                   Resolution = t.Resolution,
-                                   PriorityLevelId = t.PriorityLevel.Id,
-                                   PriorityLevelName = t.PriorityLevel.PriorityLevelName,
-                                   PriorityLevelColor = t.PriorityLevel.PriorityLevelColor,
-                                   TicketBy = u.UserName,
-                                   TicketDepartmentId = d.Id,
-                                   TicketDepartment = d.DepartmentName
-                               }).ToList();
+                           join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
+                           join u in _context.Users on t.UserId equals u.Id
+                           join ur in _context.UserRoles on u.Id equals ur.UserId
+                           join r in _context.Roles on ur.RoleId equals r.Id
+                           join d in _context.Departments on r.Id equals d.RoleId
+                           join tc in _context.TicketConversation on t.Id equals tc.TicketId into tcGroup // Left join with TicketConversations
+                           orderby t.TicketStatus ascending, t.DateTicket descending
+                           select new TicketViewModel
+                           {
+                               TicketUserId = t.UserId,
+                               TicketId = t.Id,
+                               TicketNumber = t.TicketNumber,
+                               Subject = t.Subject,
+                               Description = t.Description,
+                               OpenBy = t.OpenedByUser != null ? t.OpenedByUser.UserName : null,
+                               OpenDateTime = t.DateOpen,
+                               ClosedBy = t.ClosedByUser != null ? t.ClosedByUser.UserName : null,
+                               ClosedDateTime = t.DateClose,
+                               FilePath = t.FilePath,
+                               FileName = t.FileName,
+                               DateTicket = t.DateTicket,
+                               TicketStatus = t.TicketStatus,
+                               TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
+                                                     t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
+                                                     t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
+                                                     "Unknown",
+                               SLADeadline = t.SLADeadline,
+                               Resolution = t.Resolution,
+                               PriorityLevelId = t.PriorityLevel.Id,
+                               PriorityLevelName = t.PriorityLevel.PriorityLevelName,
+                               PriorityLevelColor = t.PriorityLevel.PriorityLevelColor,
+                               TicketBy = u.UserName,
+                               TicketDepartment = d.DepartmentName,
+                               TicketReplies = tcGroup.Count() // Count replies grouped by TicketId
+                           }).ToList();
             return tickets;
         }
 
@@ -183,6 +184,13 @@ namespace MH_TicketingSystem.Controllers
             }
             else
             {
+
+                // Only the admin or the I.T
+                if (User.IsInRole("Admin") && ticket.OpenBy == null)
+                {
+                    await UpdateTicketOpenBy(id); // Await the method
+                }
+
                 ticket.TicketStatusString = Enum.GetName(typeof(TicketStatus), ticket.TicketStatus);
 
                 // Get the Department Name the one who made the ticket
@@ -213,12 +221,7 @@ namespace MH_TicketingSystem.Controllers
                                                  FilePath = tc.FilePath
                                              }).ToListAsync();
 
-                // Only the admin or the I.T
-                if (User.IsInRole("Admin") && ticket.OpenBy != null)
-                {
-                    await UpdateTicketOpenBy(id); // Await the method
-                }
-
+               
                 // Save the data to TicketDetailsViewModel
                 TicketDetailsViewModel ticketDetails = new TicketDetailsViewModel
                 {

@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<MH_TicketingSystem.Models.ReportTicketViewModel>;
+
+@{
     ViewData["Title"] = "Ticket Reports";
 }
 
@@ -18,10 +20,68 @@
             </li>
         </ul>
     </div> <!-- end page header -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">Ticket Summary</h4>
+                    <button type="button" class="btn btn-primary" id="printButton">Print</button>
+                </div>
+                <div class="card-body">
+                    <table id="ticketTable" class="table table-bordered table-head-bg-info table-bordered-bd-info">
+                        <thead>
+                            <tr>
+                                <th scope="col">Departments</th>
+                                <th scope="col">Number of Pending Tickets</th>
+                                <th scope="col">Number of Open Tickets</th>
+                                <th scope="col">Number of Closed Tickets</th>
+                                <th scope="col">Number of Total Tickets</th>
+                            </tr>
+						</thead>
+						
+                        <tbody>
+                            @{
+                                int totalClosedTickets = 0;
+                                int totalOpenTickets = 0;
+                                int totalPendingTickets = 0;
+                            }
+                            @foreach(var item in Model){
+                                int departmentTotal = item.NumberOfTicketClosed 
+                                                        + item.NumberOfTicketOpen 
+                                                        + item.NumberOfPendingTickets;
+                                totalClosedTickets += item.NumberOfTicketClosed;
+                                totalOpenTickets += item.NumberOfTicketOpen;
+                                totalPendingTickets += item.NumberOfPendingTickets;
+                                <tr>
+                                    <td>@item.Departement</td>
+                                    <td>@item.NumberOfPendingTickets</td>
+                                    <td>@item.NumberOfTicketOpen</td>
+                                    <td>@item.NumberOfTicketClosed</td>
+                                    <td>@departmentTotal</td>
+                                </tr>
+                            }
+
+                            @{
+                                // Get totals
+                                int totals = totalClosedTickets
+                                            + totalOpenTickets
+                                            + totalPendingTickets;
+                            }
+                            <tr>
+                                <td><strong>Totals</strong></td>
+                                <td><strong>@totalPendingTickets</strong></td>
+                                <td><strong>@totalOpenTickets</strong></td>
+                                <td><strong>@totalClosedTickets</strong></td>
+                                <td><strong>@totals</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
    
 </div>
 
-
-<!--   Core JS Files   -->
-<script src="~/js/core/jquery-3.7.1.min.js"></script>
-<script src="~/vendor/toastr/js/toastr.min.js"></script>
+<script src="~/js/print.js"></script>
