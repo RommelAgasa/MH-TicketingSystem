@@ -13,6 +13,7 @@ namespace MH_TicketingSystem.Models
         public string? TicketBy {  get; set; }
 
         public int TicketId { get; set; }
+        public int TicketReplies { get; set; }
 
         public int TicketNumber { get; set; }
 

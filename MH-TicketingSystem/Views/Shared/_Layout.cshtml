@@ -54,15 +54,15 @@
                 </div>
                 <!-- Navbar Header -->
                 <partial name="_NavHeader" />
-            <!-- End Navbar -->
-        </div>
+                <!-- End Navbar -->
+            </div>
 
-        <div class="container">
-            @RenderBody()
-        </div>
+            <div class="container">
+                @RenderBody()
+            </div>
 
-        <partial name="_Footer" />
-    </div>
+            <partial name="_Footer" />
+        </div>
    
     </div>
     <!--   Core JS Files   -->
@@ -88,7 +88,27 @@
         $(document).ready(function () {
           $("#user_datatables").DataTable({});
         });
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+            document.getElementById('currentDateTime').innerText = now.toLocaleString('en-US', options);
+        }
+
+        // Update the date and time every second
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
     </script>
+
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -52,7 +52,7 @@ namespace MH_TicketingSystem.Controllers
         /// <param name="errorCount"></param>
         /// <returns></returns>
 
-        public async Task<IActionResult> Index(string ticketType = "all", string messageAlert = "",
+        public async Task<IActionResult> Index(string ticketType = "today", string messageAlert = "",
                     int errorCount = 0)
         {
 
@@ -118,6 +118,7 @@ namespace MH_TicketingSystem.Controllers
                            join ur in _context.UserRoles on u.Id equals ur.UserId
                            join r in _context.Roles on ur.RoleId equals r.Id
                            join d in _context.Departments on r.Id equals d.RoleId
+                           join tc in _context.TicketConversation on t.Id equals tc.TicketId into tcGroup // Left join with TicketConversations
                            orderby t.TicketStatus ascending, t.DateTicket descending
                            select new TicketViewModel
                            {
@@ -135,17 +136,19 @@ namespace MH_TicketingSystem.Controllers
                                DateTicket = t.DateTicket,
                                TicketStatus = t.TicketStatus,
                                TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
-                                                                     t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
-                                                                     t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
-                                                                     "Unknown",
+                                                     t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
+                                                     t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
+                                                     "Unknown",
                                SLADeadline = t.SLADeadline,
                                Resolution = t.Resolution,
                                PriorityLevelId = t.PriorityLevel.Id,
                                PriorityLevelName = t.PriorityLevel.PriorityLevelName,
                                PriorityLevelColor = t.PriorityLevel.PriorityLevelColor,
                                TicketBy = u.UserName,
-                               TicketDepartment = d.DepartmentName
+                               TicketDepartment = d.DepartmentName,
+                               TicketReplies = tcGroup.Count() // Count replies grouped by TicketId
                            }).ToList();
+
             return tickets;
         }
 
@@ -296,6 +299,15 @@ namespace MH_TicketingSystem.Controllers
                                           ).FirstOrDefaultAsync();
             }
 
+
+            // Only the admin or the I.T
+            if (User.IsInRole("Admin") && ticket.OpenBy == null)
+            {
+                // If the admin/I.T open the ticket 
+                // update the database
+                await UpdateTicketOpenBy(id);
+            }
+
             // Get the conversation ticket
             var userTicketConvo = await (from tc in _context.TicketConversation
                                          join u in _context.Users on tc.UserID equals u.Id
@@ -314,14 +326,6 @@ namespace MH_TicketingSystem.Controllers
                                              FileName = tc.FileName,
                                              FilePath = tc.FilePath
                                          }).ToListAsync();
-
-            // Only the admin or the I.T
-            if (User.IsInRole("Admin") && ticket.OpenBy != null)
-            {
-                // If the admin/I.T open the ticket 
-                // update the database
-                await UpdateTicketOpenBy(id);
-            }
 
             TicketDetailsViewModel ticketDetails = new TicketDetailsViewModel
             {

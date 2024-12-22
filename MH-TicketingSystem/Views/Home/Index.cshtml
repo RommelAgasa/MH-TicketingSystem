@@ -52,9 +52,12 @@
                                 case "pending":
                                     ticketView = isAdmin ? "Pending Tickets" : "My Pending Tickets";
                                     break;
-                                default:
+                                case "all":
                                     ticketView = isAdmin ? "All Tickets" : "My Tickets";
                                     break;
+                                default:
+                                    ticketView = "Today's Tickets";
+                                   break;
                             }
                         }
                         <div class="card-title">@ticketView</div>
@@ -86,7 +89,7 @@
                                             <i class="fa fa-calendar"></i> @ticket.DateTicket.ToString("dd MMM yyyy")
                                         </small>
                                         <small class="text-muted">
-                                            <i class="fa fa-comments"></i> 1 replies
+                                            <i class="fa fa-comments"></i> @ticket.TicketReplies replies
                                         </small>
                                         <small class="text-muted mr-2">
                                             <i class="icon-calendar"></i> SLA Deadline @(((DateTime)ticket.SLADeadline).ToString("dd MMM yyyy"))
@@ -169,59 +172,6 @@
                     </li>
                 </ul>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-head-row card-tools-still-right">
-                        <div class="card-title">Recent Activity</div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <ol class="activity-feed">
-                        <li class="feed-item feed-item-secondary">
-                            <time class="date" datetime="9-25">Sep 25</time>
-                            <span class="text">
-                                Responded to need
-                                <a href="#">"Volunteer opportunity"</a>
-                            </span>
-                        </li>
-                        <li class="feed-item feed-item-success">
-                            <time class="date" datetime="9-24">Sep 24</time>
-                            <span class="text">
-                                Added an interest
-                                <a href="#">"Volunteer Activities"</a>
-                            </span>
-                        </li>
-                        <li class="feed-item feed-item-info">
-                            <time class="date" datetime="9-23">Sep 23</time>
-                            <span class="text">
-                                Joined the group
-                                <a href="single-group.php">"Boardsmanship Forum"</a>
-                            </span>
-                        </li>
-                        <li class="feed-item feed-item-warning">
-                            <time class="date" datetime="9-21">Sep 21</time>
-                            <span class="text">
-                                Responded to need
-                                <a href="#">"In-Kind Opportunity"</a>
-                            </span>
-                        </li>
-                        <li class="feed-item feed-item-danger">
-                            <time class="date" datetime="9-18">Sep 18</time>
-                            <span class="text">
-                                Created need
-                                <a href="#">"Volunteer Opportunity"</a>
-                            </span>
-                        </li>
-                        <li class="feed-item">
-                            <time class="date" datetime="9-17">Sep 17</time>
-                            <span class="text">
-                                Attending the event
-                                <a href="single-event.php">"Some New Event"</a>
-                            </span>
-                        </li>
-                    </ol>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -288,25 +238,53 @@
                 });
 
                 const ticketHtml = `
-                    <div id="ticketContainer">
-                        <div class="d-flex justify-content-between">
-                            <a href="/Home/Details/${ticket.id}">
-                                <div class="flex-1 ms-3 pt-1">
-                                    <h6 class="text-uppercase fw-bold mb-1">
-                                        <span style="color: #007bff; text-decoration: none; font-weight: bold;">
-                                            ${ticket.subject.toUpperCase()}
-                                        </span>
-                                        <span class="text-${priorityLevelColor} ps-3">${ticketStatus}</span>
-                                    </h6>
-                                    <span class="text-muted">
-                                        ${truncatedDescription}
+                <div id="ticketContainer-${ticket.id}" class="bg-primary">
+                    <div class="d-flex justify-content-between>
+                        <a href="/Home/Details/${ticket.id}">
+                            <div class="flex-1 ms-3 pt-1">
+                                <h6 id="ticketTitle" class="text-uppercase fw-bold mb-1">
+                                    <span style="color: #007bff; text-decoration: none; font-weight: bold;">
+                                        ${ticket.subject.toUpperCase()}
                                     </span>
+                                    <span class="text-${priorityLevelColor} ps-3">${ticketStatus}</span>
+                                </h6>
+                                <span class="text-muted">
+                                    ${truncatedDescription}
+                                </span>
+                                <br />
+                                <small class="text-muted mr-2">
+                                    <i class="fa fa-calendar"></i> ${formattedDate}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fa fa-comments"></i> 0 replies
+                                </small>
+                                <small class="text-muted mr-2">
+                                    <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                    })}
+                                </small>
+                            </div>
+                        </a>
+                        <div class="float-end pt-1">
+                            <small class="text-muted me-1 d-inline-block">#${ticket.ticketNumber}</small>
+                            <div class="dropdown d-inline-block">
+                                <button class="btn btn-icon btn-clean"
+                                        type="button"
+                                        onclick="document.getElementById('menu-${ticket.id}').classList.toggle('show')">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div id="menu-${ticket.id}" class="dropdown-menu">
+                                    <a class="dropdown-item" href="/Home/CloseTicket/${ticket.id}">Close</a>
+                                    <a class="dropdown-item" href="/Home/PendingTicket/${ticket.id}">Pending</a>
+                                    <a class="dropdown-item" href="/Home/ReOpenTicket/${ticket.id}">Re-Open</a>
                                     <br />
                                     <small class="text-muted mr-2">
                                         <i class="fa fa-calendar"></i> ${formattedDate}
                                     </small>
                                     <small class="text-muted">
-                                        <i class="fa fa-comments"></i> 1 replies
+                                        <i class="fa fa-comments"></i> 0 replies
                                     </small>
                                     <small class="text-muted mr-2">
                                         <i class="icon-calendar"></i> SLA Deadline ${new Date(ticket.slaDeadline).toLocaleDateString("en-US", {
@@ -333,14 +311,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="separator-dashed"></div>
                     </div>
-                `;
+                    <div class="separator-dashed"></div>
+                </div>
+            `;
 
+            const container = document.getElementById("tickets");
+            container.insertAdjacentHTML("afterbegin", ticketHtml);
 
-                const container = document.getElementById("tickets");
-                container.insertAdjacentHTML("afterbegin", ticketHtml);
-              });
+            const ticketElement = document.getElementById(`ticketContainer-${ticket.id}`);
+
+            // Set a timeout to revert the styles
+            setTimeout(() => {
+                ticketElement.classList.remove("bg-primary"); // Remove blue background
+            }, 10000);
+
+            });
 
             connection.start().catch(err => console.error(err));
 
