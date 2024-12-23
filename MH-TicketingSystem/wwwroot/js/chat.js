@@ -7,8 +7,6 @@ document.getElementById("sendButton").disabled = true;
 
 // Function to create the sender's message UI
 function createSenderMessage(user, message, time, fileName, filePath) {
-    console.log(fileName);
-    console.log(filePath);
 
     const senderDiv = document.createElement("div");
     senderDiv.className = "chat-message-right pb-4";
@@ -87,7 +85,7 @@ document.getElementById("sendButton").addEventListener("click", async function (
     const userId = currentUser.id;
     const message = document.getElementById("messageInput").value;
     const ticketId = parseInt(document.getElementById("ticketId").value);
-    const fileInput = document.getElementById("file");
+    const fileInput = document.getElementById("file"); 
 
     // Check if the file is empty
     if (message.trim() === "" && fileInput.files.length === 0) {
