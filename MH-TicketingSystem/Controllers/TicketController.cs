@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MH_TicketingSystem.Controllers
@@ -38,12 +39,12 @@ namespace MH_TicketingSystem.Controllers
         /// <param name="errorCount"></param>
         /// <returns></returns>
 
-        public IActionResult Index(string messageAlert = "", 
+        public async Task<IActionResult> Index(string messageAlert = "", 
                                     int errorCount = 0)
         {
             TicketFilterViewModel ticketFilterViewModel = new TicketFilterViewModel();
             ticketFilterViewModel.Departments = GetDepartments();  // Get All Departments
-            ticketFilterViewModel.Tickets = GetAllTickets();
+            ticketFilterViewModel.Tickets = await GetAllTicketsAsync();
             // This is use in opening and closing the ticket alert message
             if (!string.IsNullOrEmpty(messageAlert) && errorCount == 0)
             {
@@ -57,7 +58,7 @@ namespace MH_TicketingSystem.Controllers
             return View(ticketFilterViewModel);
         }
 
-        public IActionResult Filter(FilterViewModel filter)
+        public async Task<IActionResult> Filter(FilterViewModel filter)
         {
             DateTime currentDate = DateTime.Now;
 
@@ -68,96 +69,117 @@ namespace MH_TicketingSystem.Controllers
                 Tickets = new List<TicketViewModel>() // Default empty list
             };
 
-            // Retrieve all tickets
-            List<TicketViewModel> allTickets = GetAllTickets();
+            // Build the base query
+            var query = from ticket in _context.Tickets
+                        join user in _context.Users on ticket.UserId equals user.Id
+                        join userRole in _context.UserRoles on user.Id equals userRole.UserId
+                        join role in _context.Roles on userRole.RoleId equals role.Id
+                        join department in _context.Departments on role.Id equals department.RoleId into userDepartments
+                        from department in userDepartments.DefaultIfEmpty()
+                        select new { ticket, department };
 
-            if (allTickets == null || !allTickets.Any())
-            {
-                return View(ticketFilterViewModel); // No tickets to display
-            }
-
-            // Start filtering
-            var filteredTickets = allTickets.AsQueryable();
-
+            // Apply filters conditionally
             if (filter.StartDate != null)
             {
                 DateTime endDate = filter.EndDate ?? currentDate;
-                filteredTickets = filteredTickets
-                                    .Where(t => t.DateTicket >= filter.StartDate
-                                             && t.DateTicket <= endDate);
+                query = query.Where(q => q.ticket.DateTicket >= filter.StartDate && q.ticket.DateTicket <= endDate);
             }
-
-            if (filter.EndDate != null && filter.StartDate == null)
+            else if (filter.EndDate != null)
             {
-                filteredTickets = filteredTickets
-                                    .Where(t => t.DateTicket <= filter.EndDate);
+                query = query.Where(q => q.ticket.DateTicket <= filter.EndDate);
             }
 
-            if (filter.DepartmentId != null && filter.DepartmentId != -1)
+            if (filter.DepartmentId.HasValue && filter.DepartmentId != -1)
             {
-                filteredTickets = filteredTickets
-                                    .Where(t => t.TicketDepartmentId == filter.DepartmentId);
+                query = query.Where(q => q.department.Id == filter.DepartmentId);
             }
 
-            if (filter.TicketStatus != null && filter.TicketStatus != -1)
+            if (filter.TicketStatus.HasValue && filter.TicketStatus != -1)
             {
-                filteredTickets = filteredTickets
-                                    .Where(t => t.TicketStatus == filter.TicketStatus);
+                query = query.Where(q => q.ticket.TicketStatus == filter.TicketStatus);
             }
 
-            // Set the filtered tickets in the ViewModel
-            ticketFilterViewModel.Tickets = filteredTickets.ToList();
+            // Project the filtered results into the ViewModel
+            ticketFilterViewModel.Tickets = await query
+                .OrderBy(q => q.ticket.TicketStatus)
+                .ThenByDescending(q => q.ticket.DateTicket)
+                .Select(q => new TicketViewModel
+                {
+                    TicketUserId = q.ticket.UserId,
+                    TicketId = q.ticket.Id,
+                    TicketNumber = q.ticket.TicketNumber,
+                    Subject = q.ticket.Subject,
+                    Description = q.ticket.Description,
+                    OpenBy = q.ticket.OpenedByUser != null ? q.ticket.OpenedByUser.UserName : null,
+                    OpenDateTime = q.ticket.DateOpen,
+                    ClosedBy = q.ticket.ClosedByUser != null ? q.ticket.ClosedByUser.UserName : null,
+                    ClosedDateTime = q.ticket.DateClose,
+                    FilePath = q.ticket.FilePath,
+                    FileName = q.ticket.FileName,
+                    DateTicket = q.ticket.DateTicket,
+                    TicketStatus = q.ticket.TicketStatus,
+                    TicketStatusString = q.ticket.TicketStatus == (int)TicketStatus.Open ? "Open" :
+                                          q.ticket.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
+                                          q.ticket.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
+                                          "Unknown",
+                    SLADeadline = q.ticket.SLADeadline,
+                    Resolution = q.ticket.Resolution,
+                    PriorityLevelId = q.ticket.PriorityLevelId,
+                    PriorityLevelName = q.ticket.PriorityLevel.PriorityLevelName,
+                    PriorityLevelColor = q.ticket.PriorityLevel.PriorityLevelColor,
+                    TicketBy = q.ticket.User.UserName,
+                    TicketReplies = q.ticket.TicketConversations.Count // Count replies
+                }).ToListAsync();
 
-            // Return the correct ViewModel
             return View(ticketFilterViewModel);
         }
-
 
 
         /// <summary>
         /// Get all Tickets
         /// </summary>
         /// <returns></returns>
-        private List<TicketViewModel> GetAllTickets()
+        private async Task<List<TicketViewModel>> GetAllTicketsAsync()
         {
-            var tickets = (from t in _context.Tickets
-                           join pl in _context.PriorityLevels on t.PriorityLevelId equals pl.Id
-                           join u in _context.Users on t.UserId equals u.Id
-                           join ur in _context.UserRoles on u.Id equals ur.UserId
-                           join r in _context.Roles on ur.RoleId equals r.Id
-                           join d in _context.Departments on r.Id equals d.RoleId
-                           join tc in _context.TicketConversation on t.Id equals tc.TicketId into tcGroup // Left join with TicketConversations
-                           orderby t.TicketStatus ascending, t.DateTicket descending
-                           select new TicketViewModel
-                           {
-                               TicketUserId = t.UserId,
-                               TicketId = t.Id,
-                               TicketNumber = t.TicketNumber,
-                               Subject = t.Subject,
-                               Description = t.Description,
-                               OpenBy = t.OpenedByUser != null ? t.OpenedByUser.UserName : null,
-                               OpenDateTime = t.DateOpen,
-                               ClosedBy = t.ClosedByUser != null ? t.ClosedByUser.UserName : null,
-                               ClosedDateTime = t.DateClose,
-                               FilePath = t.FilePath,
-                               FileName = t.FileName,
-                               DateTicket = t.DateTicket,
-                               TicketStatus = t.TicketStatus,
-                               TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
-                                                     t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
-                                                     t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
-                                                     "Unknown",
-                               SLADeadline = t.SLADeadline,
-                               Resolution = t.Resolution,
-                               PriorityLevelId = t.PriorityLevel.Id,
-                               PriorityLevelName = t.PriorityLevel.PriorityLevelName,
-                               PriorityLevelColor = t.PriorityLevel.PriorityLevelColor,
-                               TicketBy = u.UserName,
-                               TicketDepartment = d.DepartmentName,
-                               TicketReplies = tcGroup.Count() // Count replies grouped by TicketId
-                           }).ToList();
+            var tickets = await _context.Tickets
+                .Include(t => t.PriorityLevel)
+                .Include(t => t.User)
+                .Include(t => t.ClosedByUser)
+                .Include(t => t.OpenedByUser)
+                .Include(t => t.TicketConversations)
+                .OrderBy(t => t.TicketStatus)
+                .ThenByDescending(t => t.DateTicket)
+                .Select(t => new TicketViewModel
+                {
+                    TicketUserId = t.UserId,
+                    TicketId = t.Id,
+                    TicketNumber = t.TicketNumber,
+                    Subject = t.Subject,
+                    Description = t.Description,
+                    OpenBy = t.OpenedByUser != null ? t.OpenedByUser.UserName : null,
+                    OpenDateTime = t.DateOpen,
+                    ClosedBy = t.ClosedByUser != null ? t.ClosedByUser.UserName : null,
+                    ClosedDateTime = t.DateClose,
+                    FilePath = t.FilePath,
+                    FileName = t.FileName,
+                    DateTicket = t.DateTicket,
+                    TicketStatus = t.TicketStatus,
+                    TicketStatusString = t.TicketStatus == (int)TicketStatus.Open ? "Open" :
+                                          t.TicketStatus == (int)TicketStatus.Closed ? "Closed" :
+                                          t.TicketStatus == (int)TicketStatus.Pending ? "Pending" :
+                                          "Unknown",
+                    SLADeadline = t.SLADeadline,
+                    Resolution = t.Resolution,
+                    PriorityLevelId = t.PriorityLevel.Id,
+                    PriorityLevelName = t.PriorityLevel.PriorityLevelName,
+                    PriorityLevelColor = t.PriorityLevel.PriorityLevelColor,
+                    TicketBy = t.User.UserName,
+                    TicketReplies = t.TicketConversations.Count // Count replies
+                }).ToListAsync();
+
             return tickets;
         }
+
 
 
         /// <summary>
