@@ -71,7 +71,7 @@ namespace MH_TicketingSystem.Services
             // TicketConversation
             // TicketID
             modelBuilder.Entity<TicketConversation>()
-                .HasOne(tc => tc.Tickets)
+                .HasOne(tc => tc.Ticket)
                 .WithMany()
                 .HasForeignKey(tc => tc.TicketId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -82,6 +82,13 @@ namespace MH_TicketingSystem.Services
                 .WithMany()
                 .HasForeignKey(tc => tc.UserID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure one-to-many relationship between Tickets and TicketConversation
+            modelBuilder.Entity<TicketConversation>()
+                .HasOne(tc => tc.Ticket)
+                .WithMany(t => t.TicketConversations)
+                .HasForeignKey(tc => tc.TicketId)
+                .OnDelete(DeleteBehavior.Cascade); // Specify delete behavior if needed
         }
 
     }

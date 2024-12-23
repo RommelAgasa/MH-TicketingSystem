@@ -82,6 +82,10 @@ namespace MH_TicketingSystem.Models
         [ValidateNever]
         public PriorityLevel PriorityLevel { get; set; }
 
+
+        [BindNever]
+        [ValidateNever]
+        public ICollection<TicketConversation> TicketConversations { get; set; } // One-to-many relationship
     }
     
 }

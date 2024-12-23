@@ -33,7 +33,7 @@ namespace MH_TicketingSystem.Models
         // Navigation Properties
         [BindNever]
         [ValidateNever]
-        public Tickets Tickets { get; set; }
+        public Tickets Ticket { get; set; }
 
         [BindNever]
         [ValidateNever]
