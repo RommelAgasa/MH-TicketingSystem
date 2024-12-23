@@ -189,7 +189,7 @@
         });
 
         const ticketHtml = `
-            <div id="ticketContainer">
+            <div id="ticketContainer-${ticket.id}" class="bg-primary">
                 <div class="d-flex justify-content-between">
                     <a href="/Ticket/Details/${ticket.id}">
                         <div class="flex-1 ms-3 pt-1">
@@ -241,6 +241,14 @@
 
         const container = document.getElementById("tickets");
         container.insertAdjacentHTML("afterbegin", ticketHtml);
+
+
+        const ticketElement = document.getElementById(`ticketContainer-${ticket.id}`);
+
+        // Set a timeout to revert the styles
+        setTimeout(() => {
+            ticketElement.classList.remove("bg-primary"); // Remove blue background
+        }, 10000);
       });
 
     connection.start().catch(err => console.error(err));
