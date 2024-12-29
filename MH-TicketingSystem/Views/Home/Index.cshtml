@@ -94,6 +94,14 @@
                                         <small class="text-muted mr-2">
                                             <i class="icon-calendar"></i> SLA Deadline @(((DateTime)ticket.SLADeadline).ToString("dd MMM yyyy"))
                                         </small>
+                                        @{
+                                            if (ticket.OpenBy == null && 
+                                                ticket.TicketStatus == (int)TicketStatus.Open && 
+                                                User.IsInRole("Admin"))
+                                            {
+                                                <small><i style="color: #ff6347;"> : This ticket need your response.</i></small>
+                                            }
+                                        }
                                     </div>
                                 </a>
                                 <div class="float-end pt-1">
@@ -296,7 +304,7 @@
                 // Set a timeout to revert the styles
                 setTimeout(() => {
                     ticketElement.classList.remove("bg-primary"); // Remove blue background
-                }, 10000);
+				}, 1200000); // 20 minutes
 
             });
 
