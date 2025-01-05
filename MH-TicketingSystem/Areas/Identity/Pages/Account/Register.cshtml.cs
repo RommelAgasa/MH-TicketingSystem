@@ -138,7 +138,7 @@ namespace MH_TicketingSystem.Areas.Identity.Pages.Account
                 //    Value = i // Value that will be submitted on form
                 //})
 
-                DepartmentList = _context.Departments.Select(d => new SelectListItem
+                DepartmentList = _context.Departments.Where(d => d.IsDepartmentActive == true).Select(d => new SelectListItem
                 {
                     Text = d.DepartmentName,
                     Value = d.Id.ToString()

@@ -99,7 +99,7 @@
                                                 ticket.TicketStatus == (int)TicketStatus.Open && 
                                                 User.IsInRole("Admin"))
                                             {
-                                                <small><i style="color: #ff6347;"> : This ticket need your response.</i></small>
+                                                <small><i style="color: #ff6347;"> : Reply?.</i></small>
                                             }
                                         }
                                     </div>
@@ -212,6 +212,13 @@
 
 <script src="~/js/dist/browser/signalr.js"></script>
 <script src="~/js/dist/browser/signalr.min.js"></script>
+
+<script>
+    setTimeout(function(){
+       window.location.reload();
+    }, 3600000);
+</script>
+
 @section Scripts {
     @if (User.IsInRole("Admin"))
     {

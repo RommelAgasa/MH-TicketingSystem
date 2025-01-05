@@ -238,7 +238,7 @@ namespace MH_TicketingSystem.Controllers
                             .FirstOrDefault(c => c.Id == ticket.PriorityLevelId)?.PriorityLevelColor;
 
                     await _hubContext.Clients.All.SendAsync("ReceiveNewTicket", ticket, ticketStatus, priorityLevelColor);
-                    return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
+                    return RedirectToAction("Index", new { ticketType = "today", messageAlert, errorCount });
                 }
                 catch (Exception ex)
                 {
@@ -419,7 +419,7 @@ namespace MH_TicketingSystem.Controllers
                 messageAlert = "Ticket is already closed.";
             }
 
-            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
+            return RedirectToAction("Index", new { ticketType = "today", messageAlert, errorCount });
         }
 
 
@@ -456,7 +456,7 @@ namespace MH_TicketingSystem.Controllers
                 messageAlert = "Ticket is already in pending status.";
             }
 
-            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
+            return RedirectToAction("Index", new { ticketType = "today", messageAlert, errorCount });
         }
 
 
@@ -470,7 +470,7 @@ namespace MH_TicketingSystem.Controllers
             Tickets ticket = await _context.Tickets.FindAsync(id);
             string messageAlert = "";
             int errorCount = 0;
-            if (ticket != null && ticket.TicketStatus == 1)
+            if (ticket != null && ticket.TicketStatus == 2)
             {
                 ticket.TicketStatus = (int)TicketStatus.Open;
                 ticket.CloseBy = null;
@@ -500,7 +500,7 @@ namespace MH_TicketingSystem.Controllers
                 messageAlert = "You cannot reopen ticket that is in pending status.";
             }
 
-            return RedirectToAction("Index", new { ticketType = "all", messageAlert, errorCount });
+            return RedirectToAction("Index", new { ticketType = "today", messageAlert, errorCount });
         }
 
         /// <summary>
