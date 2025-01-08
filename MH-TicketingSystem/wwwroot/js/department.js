@@ -7,7 +7,7 @@
 // Get all departments ---------------------------------------------------------------------------------------------------------------
 function GetAllDepartments() {
     $.ajax({
-        url: '/Department/GetAllDepartments',
+        url: 'Department/GetAllDepartments',
         type: 'get',
         dataType: 'json',
         success: function (response) {

@@ -7,7 +7,7 @@
 // Get all roles
 function GetAllRoles() {
     $.ajax({
-        url: '/Roles/GetRoles',
+        url: 'Roles/GetRoles',
         type: 'get',
         dataType: 'json',
         success: function (response) {
