@@ -77,6 +77,13 @@ connection.start().then(async function () {
     console.error(err.toString());
 });
 
+document.getElementById("messageInput").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Prevent the default "Enter" behavior, such as submitting a form
+        document.getElementById("sendButton").click(); // Trigger the click event on the send button
+    }
+});
+
 // Handle sending messages
 document.getElementById("sendButton").addEventListener("click", async function (event) {
     event.preventDefault();
