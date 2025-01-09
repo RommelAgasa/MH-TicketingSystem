@@ -130,8 +130,13 @@ namespace MH_TicketingSystem.Controllers
 
             try
             {
-                // check if there is a record in ticket table
-                var hasRecord = true;
+                // Check if the department is associated with any user
+                var hasRecord = _context.UserRoles
+                    .Join(_context.Users, ur => ur.UserId, u => u.Id, (ur, u) => new { ur, u })
+                    .Join(_context.Roles, urU => urU.ur.RoleId, r => r.Id, (urU, r) => new { urU.u, r })
+                    .Join(_context.Departments, uR => uR.r.Id, d => d.RoleId, (uR, d) => new { uR.u, d })
+                    .Where(x => x.d.Id == id)
+                    .Any();
 
                 if (hasRecord)
                 {

@@ -89,7 +89,7 @@ function Insert() {
     let roleName = $('#Role_Name').val();
 
     $.ajax({
-        url: '/Roles/Create',
+        url: 'Roles/Create',
         data: { roleName: roleName },
         type: 'post',
         contentType: 'application/x-www-form-urlencoded',
@@ -110,7 +110,7 @@ function Insert() {
 // Get Role for Edit
 function Edit(id) {
     $.ajax({
-        url: '/Roles/Edit',
+        url: 'Roles/Edit',
         type: 'get',
         dataType: 'json',
         data: { id: id },
@@ -138,7 +138,7 @@ function Update() {
     formData.name = $('#Role_Name').val();
 
     $.ajax({
-        url: '/Roles/Update',
+        url: 'Roles/Update',
         data: formData,
         type: 'post',
         success: function (response) {
@@ -167,7 +167,7 @@ function Delete(id) {
     }).then((result) => {
         if (result.value) {
             $.ajax({
-                url: `/Roles/Delete?id=${id}`,
+                url: `Roles/Delete?id=${id}`,
                 type: 'post',
                 success: function (response) {
                     if (response.success) {

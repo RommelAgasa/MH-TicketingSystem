@@ -187,9 +187,19 @@ namespace MH_TicketingSystem.Areas.Identity.Pages.Account
                         return Page();
                     }
 
+                    // Add UserId and DepartmentId in UserDepartmentTable
+                    UserDepartment connectUserDepartment = new UserDepartment
+                    {
+                        UserId = user.Id,
+                        DepartmentId = department.Id
+                    };
+
+                    await _context.AddAsync(connectUserDepartment);
+                    int saveChanges = await _context.SaveChangesAsync();
+
                     // Check if department and its RoleId are valid
                     string roleID = department?.RoleId; // RoleId of the department
-                    if (!string.IsNullOrEmpty(roleID))
+                    if (!string.IsNullOrEmpty(roleID) && saveChanges != 0)
                     {
                         // Find the role by its ID
                         var role = await _roleManager.FindByIdAsync(roleID);

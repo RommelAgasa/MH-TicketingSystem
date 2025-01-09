@@ -154,7 +154,8 @@ namespace MH_TicketingSystem.Controllers
             int ticketCount = (from t in _context.Tickets
                                where t.UserId == user
                                select t.UserId).Count();
-            return ticketCount++;
+            ticketCount += 1;
+            return ticketCount;
         }
 
 
@@ -265,9 +266,8 @@ namespace MH_TicketingSystem.Controllers
                 // Get the Department Name the one who made the ticket
                 TempData["DepartmentName"] = await (from t in _context.Tickets
                                             join u in _context.Users on t.UserId equals u.Id
-                                            join ur in _context.UserRoles on u.Id equals ur.UserId
-                                            join r in _context.Roles on ur.RoleId equals r.Id
-                                            join d in _context.Departments on r.Id equals d.RoleId
+                                            join ud in _context.UserDepartments on u.Id equals ud.UserId
+                                            join d in _context.Departments on ud.DepartmentId equals d.Id
                                             select d.DepartmentName
                                             ).FirstOrDefaultAsync();
             }
@@ -294,9 +294,8 @@ namespace MH_TicketingSystem.Controllers
             // Get the conversation ticket
             var userTicketConvo = await (from tc in _context.TicketConversation
                                          join u in _context.Users on tc.UserID equals u.Id
-                                         join ur in _context.UserRoles on u.Id equals ur.UserId
-                                         join r in _context.Roles on ur.RoleId equals r.Id
-                                         join d in _context.Departments on r.Id equals d.RoleId
+                                         join ud in _context.UserDepartments on u.Id equals ud.UserId
+                                         join d in _context.Departments on ud.DepartmentId equals d.Id
                                          where tc.TicketId == id
                                          orderby tc.Timestamp ascending
                                          select new UserTicketConversation

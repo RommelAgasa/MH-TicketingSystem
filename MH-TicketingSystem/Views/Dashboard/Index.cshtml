@@ -123,7 +123,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
            // Fetch data and render the chart
-    fetch('/Dashboard/GetTicketsPerMonth')
+    fetch('Dashboard/GetTicketsPerMonth')
         .then(response => response.json())
         .then(chartData => {
             var lineChart = document.getElementById('LineChart').getContext('2d');
@@ -160,7 +160,7 @@
 
 
         // Fetch data and render the doughnut chart
-        fetch('/Dashboard/GetTicketsByPriority')
+        fetch('Dashboard/GetTicketsByPriority')
             .then(response => response.json())
             .then(chartData => {
                 var doughnutChart = document.getElementById('doughnutChart').getContext('2d');

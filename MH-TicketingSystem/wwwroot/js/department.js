@@ -91,7 +91,7 @@ function Insert() {
     const formData = gatherFormData();
 
     $.ajax({
-        url: '/Department/Create',
+        url: 'Department/Create',
         data: formData,
         type: 'post',
         success: function (response) {
@@ -110,7 +110,7 @@ function Insert() {
 // Get Data to Edit ---------------------------------------------------------------------------------------------------------------
 function Edit(id) {
     $.ajax({
-        url: `/Department/Edit?id=${id}`,
+        url: `Department/Edit?id=${id}`,
         type: 'get',
         dataType: 'json',
         success: function (response) {
@@ -132,7 +132,7 @@ function Update() {
     const formData = gatherFormData($('#Id').val());
 
     $.ajax({
-        url: '/Department/Update',
+        url: 'Department/Update',
         data: formData,
         type: 'post',
         success: function (response) {
@@ -161,7 +161,7 @@ function Delete(id) {
         if (result.value) {
             // Proceed with the AJAX request if confirmed
             $.ajax({
-                url: `/Department/Delete?id=${id}`,
+                url: `Department/Delete?id=${id}`,
                 type: 'post',
                 success: function (response) {
                     if (response.success) {

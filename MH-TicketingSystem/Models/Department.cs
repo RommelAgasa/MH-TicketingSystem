@@ -32,5 +32,11 @@ namespace MH_TicketingSystem.Models
         [ValidateNever]
         public virtual IdentityRole Role { get; set; }
 
+
+        // Navigation property for related UserDepartments
+        [BindNever]
+        [ValidateNever]
+        public ICollection<UserDepartment> UserDepartments { get; set; }
+
     }
 }

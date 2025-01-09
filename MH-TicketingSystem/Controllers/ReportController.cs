@@ -24,45 +24,40 @@ namespace MH_TicketingSystem.Controllers
 
         public List<ReportTicketViewModel> GetReportTicketViewModel()
         {
-            var report = _context.Departments
+            var departments = _context.Departments.ToList();
+            var userDepartments = _context.UserDepartments.ToList();
+            var tickets = _context.Tickets.ToList();
+
+            var report = departments
                 .GroupJoin(
-                    _context.Roles,
-                    department => department.RoleId,
-                    role => role.Id,
-                    (department, roles) => new { Department = department, Roles = roles }
+                    userDepartments,
+                    department => department.Id,
+                    userDepartment => userDepartment.DepartmentId,
+                    (department, userDepartments) => new
+                    {
+                        Department = department,
+                        Users = userDepartments.Select(ud => ud.UserId)
+                    }
                 )
                 .SelectMany(
-                    dr => dr.Roles.DefaultIfEmpty(),
-                    (dr, role) => new { dr.Department, Role = role }
+                    deptUsers => deptUsers.Users.DefaultIfEmpty(),
+                    (deptUsers, userId) => new
+                    {
+                        deptUsers.Department,
+                        UserId = userId
+                    }
                 )
                 .GroupJoin(
-                    _context.UserRoles,
-                    dr => dr.Role.Id,
-                    userRole => userRole.RoleId,
-                    (dr, userRoles) => new { dr.Department, UserRoles = userRoles }
-                )
-                .SelectMany(
-                    dru => dru.UserRoles.DefaultIfEmpty(),
-                    (dru, userRole) => new { dru.Department, UserRole = userRole }
-                )
-                .GroupJoin(
-                    _context.Users,
-                    dru => dru.UserRole.UserId,
-                    user => user.Id,
-                    (dru, users) => new { dru.Department, Users = users }
-                )
-                .SelectMany(
-                    du => du.Users.DefaultIfEmpty(),
-                    (du, user) => new { du.Department, User = user }
-                )
-                .GroupJoin(
-                    _context.Tickets,
-                    du => du.User.Id, // Handle null users
+                    tickets,
+                    du => du.UserId,
                     ticket => ticket.UserId,
-                    (du, tickets) => new { du.Department, Tickets = tickets }
+                    (du, tickets) => new
+                    {
+                        du.Department,
+                        Tickets = tickets
+                    }
                 )
-                .AsEnumerable() // Switch to client-side evaluation for grouping and counting
-                .GroupBy(d => d.Department) // Group by department
+                .GroupBy(d => d.Department)
                 .Select(g => new ReportTicketViewModel
                 {
                     DepartmentId = g.Key.Id.ToString(),

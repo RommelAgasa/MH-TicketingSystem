@@ -37,10 +37,10 @@ namespace MH_TicketingSystem.Controllers
         /// <returns></returns>
         public List<UserDepartmentViewModel> GetUsers()
         {
-            var users =  (from ur in _context.UserRoles
+            var users = (from ur in _context.UserRoles
                          join u in _context.Users on ur.UserId equals u.Id
-                         join r in _context.Roles on ur.RoleId equals r.Id
-                         join d in _context.Departments on r.Id equals d.RoleId
+                         join ud in _context.UserDepartments on u.Id equals ud.UserId
+                         join d in _context.Departments on ud.DepartmentId equals d.Id
                          select new UserDepartmentViewModel
                          {
                              UserId = u.Id,
@@ -49,7 +49,7 @@ namespace MH_TicketingSystem.Controllers
                              DepartmentId = d.Id,
                              DepartmentName = d.DepartmentName
                          }).ToList();
-
+                         
             return users;
         }
 
@@ -207,16 +207,25 @@ namespace MH_TicketingSystem.Controllers
             }
 
             // Check if this user a reference record to department table
-            var hasRecord = true;
+            var hasRecord = _context.Tickets.Any(t => t.UserId == id);
             if (hasRecord)
             {
                 return Json(new { success = true, message = "This user is referenced in other data and cannot be removed." });
             }
 
             // Attempt to delete the user
+            // if the user has no reference record in other tables
             var result = await _userManager.DeleteAsync(user);
+
             if (result.Succeeded)
             {
+                UserDepartment removeJoin = _context.UserDepartments.FirstOrDefault(d => d.UserId == id);
+                if(removeJoin != null)
+                {
+                    _context.UserDepartments.Remove(removeJoin);
+                    _context.SaveChanges();
+                }
+
                 return Json(new { success = true, message = "User successfully deleted." });
             }
             else

@@ -12,7 +12,7 @@
         if (result.value) {
             // Proceed with the AJAX request if confirmed
             $.ajax({
-                url: `/User/Delete?id=${id}`,
+                url: `User/Delete?id=${id}`,
                 type: 'post',
                 success: function (response) {
                     if (response.success) {

@@ -26,6 +26,8 @@ namespace MH_TicketingSystem.Services
 
         public DbSet<PriorityLevel> PriorityLevels { get; set; }
 
+        public DbSet<UserDepartment> UserDepartments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -44,6 +46,18 @@ namespace MH_TicketingSystem.Services
                 .HasOne(t => t.User)
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserDepartment>()
+                .HasOne(ud => ud.Department) // A UserDepartment has one Department
+                .WithMany(d => d.UserDepartments) // A Department has many UserDepartments
+                .HasForeignKey(ud => ud.DepartmentId) // Foreign key in UserDepartment table
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserDepartment>()
+                .HasOne(ud => ud.User) // A UserDepartment has one User
+                .WithOne() // A User can only belong to one Department through UserDepartment
+                .HasForeignKey<UserDepartment>(ud => ud.UserId) // Foreign key in UserDepartment table
                 .OnDelete(DeleteBehavior.Restrict);
 
             // OpenBy (Opened by user)
