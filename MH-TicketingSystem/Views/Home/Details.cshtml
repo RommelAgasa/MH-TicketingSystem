@@ -150,7 +150,7 @@
 								<div class="@((isCurrentUser ? "chat-message-right" : "chat-message-left") + " pb-4")">
 									<div>
 										<div class="text-muted small text-nowrap mt-2">
-											@conversation.Timestamp.ToString("HH:mm")
+											@conversation.Timestamp.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture).ToUpper()
 										</div>
 									</div>
 									<div class="flex-shrink-1 bg-light rounded py-2 px-3 @(isCurrentUser ? "mr-3" : "ml-3")">
