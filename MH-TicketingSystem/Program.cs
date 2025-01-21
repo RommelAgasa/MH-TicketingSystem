@@ -19,7 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
         {
             options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequiredLength = 3;
+            options.Password.RequiredLength = 1;
             options.Password.RequireLowercase = false;
             options.Password.RequireUppercase = false;
             options.Password.RequireDigit = true;

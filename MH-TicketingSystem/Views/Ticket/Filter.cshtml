@@ -24,8 +24,8 @@
         <div class="col-md-12">
             <div class="card p-2">
                 <form asp-controller="Ticket" asp-action="Filter" model-only="Model.Filter">
-                    <div class="row">
-                        <div class="col-md-6 col-lg-2">
+                    <div class="row g-2">
+                        <div class="col-md-6 col-lg-3">
                             <div class="form-group mb-0">
                                 <label for="select1" class="form-label">Department</label>
                                 <select class="form-control" asp-for="Filter.DepartmentId" asp-items="@(new SelectList(Model.Departments, "Value", "Text"))">
@@ -33,7 +33,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-2">
+                        <div class="col-md-6 col-lg-3">
                             <div class="form-group mb-0">
                                 <label asp-for="Filter.TicketStatus" class="form-label">Ticket Status</label>
                                 <select asp-for="Filter.TicketStatus" class="form-control" id="select1">
@@ -44,13 +44,13 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-2">
+                        <div class="col-md-6 col-lg-3">
                             <div class="form-group mb-0">
                                 <label asp-for="Filter.StartDate" class="form-label">Start Date</label>
                                 <input asp-for="Filter.StartDate" type="date" class="form-control" />
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-2">
+                        <div class="col-md-6 col-lg-3">
                             <div class="form-group mb-0">
                                 <label asp-for="Filter.EndDate" class="form-label">End Date</label>
                                 <input asp-for="Filter.EndDate" type="date" class="form-control" />

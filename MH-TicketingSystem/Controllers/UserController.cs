@@ -48,7 +48,9 @@ namespace MH_TicketingSystem.Controllers
                              Password = u.PasswordHash,
                              DepartmentId = d.Id,
                              DepartmentName = d.DepartmentName
-                         }).ToList();
+                         })
+                         .OrderBy(u => u.UserName)
+                         .ToList();
                          
             return users;
         }
@@ -246,7 +248,9 @@ namespace MH_TicketingSystem.Controllers
                         {
                             Value = d.Id.ToString(),
                             Text = d.DepartmentName
-                        }).ToList();
+                        })
+                        .OrderBy(d => d.Text)
+                        .ToList();
 
             return departments;
         }

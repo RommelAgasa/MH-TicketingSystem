@@ -36,7 +36,9 @@ namespace MH_TicketingSystem.Controllers
                 {
                     Text = r.Name,
                     Value = r.Id
-                }).ToListAsync();
+                })
+                .OrderBy(n => n.Text)
+                .ToListAsync();
             return View();
         }
 
@@ -48,7 +50,9 @@ namespace MH_TicketingSystem.Controllers
         [HttpGet]
         public JsonResult GetAllDepartments()
         {
-            var departments = _context.Departments.ToList();
+            var departments = _context.Departments
+                .OrderBy(d => d.DepartmentName)
+                .ToList();
             return Json(departments);
         }
 

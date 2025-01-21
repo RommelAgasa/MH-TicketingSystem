@@ -100,7 +100,7 @@ namespace MH_TicketingSystem.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 1)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
@@ -138,11 +138,13 @@ namespace MH_TicketingSystem.Areas.Identity.Pages.Account
                 //    Value = i // Value that will be submitted on form
                 //})
 
-                DepartmentList = _context.Departments.Where(d => d.IsDepartmentActive == true).Select(d => new SelectListItem
+                DepartmentList = _context.Departments
+                    .Where(d => d.IsDepartmentActive == true)
+                    .Select(d => new SelectListItem
                 {
                     Text = d.DepartmentName,
                     Value = d.Id.ToString()
-                })
+                }).OrderBy(d => d.Text).ToList()
             };
         }
 
@@ -209,7 +211,7 @@ namespace MH_TicketingSystem.Areas.Identity.Pages.Account
                             // Add the user to the role using the role's name
                             await _userManager.AddToRoleAsync(user, role.Name);
 
-                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            // await _signInManager.SignInAsync(user, isPersistent: false);
 
                             /**
                              * This line redirects the user to a specified URL. LocalRedirect 
