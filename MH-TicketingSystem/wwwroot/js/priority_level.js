@@ -19,7 +19,7 @@ function GetAllPriorityLevel() {
                 $.each(response.pLevels, function (index, item) {
                     plevelTableData += `
                         <tr>
-                            <td>${counter}</td>
+                            <td>${counter++}</td>
                             <td>
                                 <span class="badge badge-${item.priorityLevelColor}" 
                                     style="font-size: 1.0em; padding: 0.2em 0.5;">

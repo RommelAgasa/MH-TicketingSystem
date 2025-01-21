@@ -389,7 +389,8 @@ namespace MH_TicketingSystem.Controllers
             var user = await _userManager.GetUserAsync(User);
             string messageAlert = "";
             int errorCount = 0;
-            if (ticket != null && user != null && (ticket.TicketStatus == 0 || ticket.TicketStatus == 2))
+            if (ticket != null && user != null && 
+                (ticket.TicketStatus == (int)TicketStatus.Open || ticket.TicketStatus == (int)TicketStatus.Pending))
             {
                 ticket.TicketStatus = (int)TicketStatus.Closed;
                 ticket.CloseBy = user.Id;
@@ -432,7 +433,7 @@ namespace MH_TicketingSystem.Controllers
             Tickets ticket = await _context.Tickets.FindAsync(id);
             string messageAlert = "";
             int errorCount = 0;
-            if (ticket != null && ticket.TicketStatus == 0)
+            if (ticket != null && ticket.TicketStatus == (int)TicketStatus.Open)
             {
                 ticket.TicketStatus = (int)TicketStatus.Pending;
                 try
@@ -449,10 +450,13 @@ namespace MH_TicketingSystem.Controllers
                 }
 
             }
-
-            if (ticket.TicketStatus == (int)TicketStatus.Pending)
+            else if (ticket.TicketStatus == (int)TicketStatus.Pending)
             {
                 messageAlert = "Ticket is already in pending status.";
+            }
+            else if(ticket.TicketStatus == (int)TicketStatus.Closed)
+            {
+                messageAlert = "Ticket is already closed.";
             }
 
             return RedirectToAction("Index", new { ticketType = "today", messageAlert, errorCount });
@@ -469,7 +473,7 @@ namespace MH_TicketingSystem.Controllers
             Tickets ticket = await _context.Tickets.FindAsync(id);
             string messageAlert = "";
             int errorCount = 0;
-            if (ticket != null && ticket.TicketStatus == 2)
+            if (ticket != null && ticket.TicketStatus == (int)TicketStatus.Closed)
             {
                 ticket.TicketStatus = (int)TicketStatus.Open;
                 ticket.CloseBy = null;
