@@ -206,7 +206,6 @@ namespace MH_TicketingSystem.Controllers
             }
             else
             {
-
                 // Only the admin or the I.T
                 if (User.IsInRole("Admin") && ticket.OpenBy == null)
                 {
@@ -224,12 +223,12 @@ namespace MH_TicketingSystem.Controllers
                                                 select d.DepartmentName
                                             ).FirstOrDefaultAsync();
 
+
                 // Get the conversation ticket
                 var userTicketConvo = await (from tc in _context.TicketConversation
                                              join u in _context.Users on tc.UserID equals u.Id
-                                             join ur in _context.UserRoles on u.Id equals ur.UserId
-                                             join r in _context.Roles on ur.RoleId equals r.Id
-                                             join d in _context.Departments on r.Id equals d.RoleId
+                                             join ud in _context.UserDepartments on u.Id equals ud.UserId
+                                             join d in _context.Departments on ud.DepartmentId equals d.Id
                                              where tc.TicketId == id
                                              orderby tc.Timestamp ascending
                                              select new UserTicketConversation
@@ -243,7 +242,7 @@ namespace MH_TicketingSystem.Controllers
                                                  FilePath = tc.FilePath
                                              }).ToListAsync();
 
-               
+
                 // Save the data to TicketDetailsViewModel
                 TicketDetailsViewModel ticketDetails = new TicketDetailsViewModel
                 {
