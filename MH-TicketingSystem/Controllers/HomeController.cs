@@ -159,7 +159,6 @@ namespace MH_TicketingSystem.Controllers
         }
 
 
-
         /// <summary>
         /// Use in posting the ticket / ticket creation
         /// </summary>
@@ -268,6 +267,7 @@ namespace MH_TicketingSystem.Controllers
                                             join u in _context.Users on t.UserId equals u.Id
                                             join ud in _context.UserDepartments on u.Id equals ud.UserId
                                             join d in _context.Departments on ud.DepartmentId equals d.Id
+                                            where t.Id == id
                                             select d.DepartmentName
                                             ).FirstOrDefaultAsync();
             }

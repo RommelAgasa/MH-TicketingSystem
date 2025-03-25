@@ -218,9 +218,9 @@ namespace MH_TicketingSystem.Controllers
                 // Get the Department Name the one who made the ticket
                 TempData["Department"] = await (from t in _context.Tickets
                                                 join u in _context.Users on t.UserId equals u.Id
-                                                join ur in _context.UserRoles on u.Id equals ur.UserId
-                                                join r in _context.Roles on ur.RoleId equals r.Id
-                                                join d in _context.Departments on r.Id equals d.RoleId
+                                                join ud in _context.UserDepartments on u.Id equals ud.UserId
+                                                join d in _context.Departments on ud.DepartmentId equals d.Id
+                                                where t.Id == id
                                                 select d.DepartmentName
                                             ).FirstOrDefaultAsync();
 
